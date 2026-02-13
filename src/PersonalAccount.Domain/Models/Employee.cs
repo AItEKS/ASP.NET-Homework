@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel.DataAnnotations;
 using PersonalAccount.Domain.Core;
 
@@ -12,14 +11,14 @@ public class Employee : IId
     public Guid Id { get; set; }
     
     /// <summary>
-    /// Наименование сотрудника 
+    /// Название сотрудника 
     /// </summary>
-    [Length(10, 255)]
+    [EmployeeName]
     public required string Name { get; set; }
     
     /// <summary>
     /// Телефон сотрудника 
     /// </summary>
-    [PhoneTemplate("^\\+?[1-9][0-9]{7,14}$")]
+    [EmployeePhone]
     public string? Phone { get; set; }
 }

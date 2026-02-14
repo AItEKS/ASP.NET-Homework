@@ -35,15 +35,25 @@ public class PastOrPresentAttribute : ValidationAttribute
             return ValidationResult.Success;
         }
 
-        var date = (DateTime)value;
-
-        // Проверка: дата не больше текущей (плюс 1 минута на погрешность часов)
-        if (date > DateTime.Now.AddMinutes(1))
+        if (value is DateTimeOffset dto)
         {
-            return new ValidationResult("Дата операции не может быть в будущем");
+            if (dto > DateTimeOffset.Now.AddMinutes(1))
+            {
+                return new ValidationResult("Дата операции не может быть в будущем");
+            }
+            return ValidationResult.Success;
         }
 
-        return ValidationResult.Success;
+        if (value is DateTime dt)
+        {
+            if (dt > DateTime.Now.AddMinutes(1))
+            {
+                return new ValidationResult("Дата операции не может быть в будущем");
+            }
+            return ValidationResult.Success;
+        }
+
+        return new ValidationResult("Некорректный формат даты");
     }
 }
 

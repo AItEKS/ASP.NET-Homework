@@ -1,5 +1,3 @@
-using System;
-using System.ComponentModel.DataAnnotations;
 using PersonalAccount.Domain.Core;
 
 namespace PersonalAccount.Domain.Models;
@@ -9,9 +7,28 @@ public class Nomenclature : IId
     /// <summary>
     /// ID номенклатуры
     /// </summary>
-    public Guid Id { get; set; }
-    
-    public Guid CategoryId { get; set; }
+    public long Id { get; set; }
 
-    public string Name { get; set; }
+    /// <summary>
+    /// ID категории
+    /// </summary>
+    public required int CategoryId { get; set; }
+
+    /// <summary>
+    /// Название товара
+    /// </summary>
+    [ProductName]
+    public required string Name { get; set; }
+
+    /// <summary>
+    /// Цена товара
+    /// </summary>
+    [ProductPrice]
+    public required decimal Price { get; set; }
+
+    /// <summary>
+    /// Единица измерения
+    /// </summary>
+    [UnitOfMeasure]
+    public required string UnitOfMeasure { get; set; }
 }

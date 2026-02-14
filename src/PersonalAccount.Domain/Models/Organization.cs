@@ -1,5 +1,3 @@
-using System;
-using System.ComponentModel.DataAnnotations;
 using PersonalAccount.Domain.Core;
 
 namespace PersonalAccount.Domain.Models;
@@ -9,19 +7,19 @@ public class Organization : IId
     /// <summary>
     /// ID организации
     /// </summary>
-    public Guid Id { get; set; }
+    public long Id { get; set; }
     
     /// <summary>
     /// Название организации 
     /// </summary>
     [OrgName]
-    public string Name { get; set; } = null!;
+    public required string Name { get; set; }
 
     /// <summary>
     /// ИНН организации 
     /// </summary>
     [Inn]
-    public string Inn { get; set; } = null!;
+    public required string Inn { get; set; }
 
     /// <summary>
     /// Адрес организации 

@@ -1,67 +1,73 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using PersonalAccount.Domain.Core;
+using PersonalAccount.Domain.Validation;
 
 namespace PersonalAccount.Domain.Models;
 
-public class Transaction : IId
+/// <summary>
+/// Тип операции с товаром/деньгами
+/// </summary>
+public enum OperationType
+{
+    Sale = 1,       // Продажа
+    Return = 2,     // Возврат
+    WriteOff = 3    // Списание
+}
+
+/// <summary>
+/// Тип источника для импорта
+/// </summary>
+public enum ImportSourceType
+{
+    Excel = 1,
+    Csv = 2,
+    Xml = 3,
+    OneC = 4 // 1C
+}
+
+public class Transaction
 {
     /// <summary>
     /// ID транзакции
     /// </summary>
-    public Guid Id { get; set; }
+    public long Id { get; set; }
+
+    /// <summary> 
+    /// ID номенклатуры 
+    /// </summary>
+    public required long NomenclatureId { get; set; }
 
     /// <summary>
-    /// Дата и время начала транзакции
+    /// Ответственный сотрудник
     /// </summary>
-    public DateTimeOffset StartDate { get; set; } = DateTimeOffset.UtcNow;
+    public required long EmployeeId { get; set; }
 
     /// <summary>
-    /// Дата и время завершения транзакции
+    /// Дата совершения операции (на чеке)
     /// </summary>
-    public DateTimeOffset? EndDate { get; set; }
+    [PastOrPresent] 
+    public required DateTimeOffset OperationDate { get; set; }
 
     /// <summary>
-    /// Тип транзакции (покупка, продажа)
+    /// Дата регистрации в системе
     /// </summary>
-    public required TransactionType Type { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     /// <summary>
-    /// Статус транзакции
+    /// Количество товара
     /// </summary>
-    public required TransactionStatus Status { get; set; }
-}
+    [NotZero]
+    public required decimal Quantity { get; set; }
 
-/// <summary>
-/// Тип транзакции
-/// </summary>
-public enum TransactionType
-{
-    /// <summary>Продажа</summary>
-    Sell = 0,
+    /// <summary>
+    /// Сумма операции
+    /// </summary>
+    [PositiveMoney]
+    public required decimal Amount { get; set; }
 
-    /// <summary>Покупка</summary>
-    Buy = 1,
-}
-
-
-/// <summary>
-/// Статус транзакции
-/// </summary>
-public enum TransactionStatus
-{
-    /// <summary>В ожидании</summary>
-    Pending = 0,
-
-    /// <summary>В обработке</summary>
-    Processing = 1,
-
-    /// <summary>Завершена успешно</summary>
-    Completed = 2,
-
-    /// <summary>Отменена</summary>
-    Cancelled = 3,
-
-    /// <summary>Ошибка</summary>
-    Failed = 4
+    /// <summary>
+    /// Тип операции (Продажа, Возврат, Списание)
+    /// </summary>
+    public required OperationType OperationType { get; set; }
 }

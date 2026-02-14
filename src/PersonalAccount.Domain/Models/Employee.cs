@@ -8,7 +8,7 @@ public class Employee : IId
     /// <summary>
     /// ID сотрудника 
     /// </summary>
-    public Guid Id { get; set; }
+    public long Id { get; set; }
     
     /// <summary>
     /// Название сотрудника 
@@ -21,4 +21,9 @@ public class Employee : IId
     /// </summary>
     [EmployeePhone]
     public string? Phone { get; set; }
+
+    /// <summary>
+    /// ID организации
+    /// </summary>
+    public required Guid OrganizationId { get; set; }
 }

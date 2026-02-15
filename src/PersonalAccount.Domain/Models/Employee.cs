@@ -11,7 +11,7 @@ public class Employee : IId
     public long Id { get; set; }
     
     /// <summary>
-    /// Название сотрудника 
+    /// Имя сотрудника 
     /// </summary>
     [EmployeeName]
     public required string Name { get; set; }
@@ -23,7 +23,7 @@ public class Employee : IId
     public string? Phone { get; set; }
 
     /// <summary>
-    /// ID организации
+    /// Организация
     /// </summary>
-    public required Guid OrganizationId { get; set; }
+    public required Organization Organization { get; set; }
 }

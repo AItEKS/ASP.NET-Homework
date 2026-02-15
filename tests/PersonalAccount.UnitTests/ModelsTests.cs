@@ -4,20 +4,9 @@ using NUnit.Framework;
 using PersonalAccount.Domain.Dto;
 using PersonalAccount.Domain.Models;
 using PersonalAccount.Domain.Validation;
+using PersonalAccount.UnitTests.Logics; 
 
 namespace PersonalAccount.UnitTests;
-
-// Хелпер для запуска валидации
-public static class ValidationHelper
-{
-    public static IList<ValidationResult> Validate(object model)
-    {
-        var results = new List<ValidationResult>();
-        var ctx = new ValidationContext(model);
-        Validator.TryValidateObject(model, ctx, results, true);
-        return results;
-    }
-}
 
 [TestFixture]
 public class CategoryTests
@@ -39,7 +28,7 @@ public class CategoryTests
     public void Create_ValidCategory_Success()
     {
         // Подготовка
-        var category = new Category { Id = 1, Name = "Electronics" };
+        var category = new Category { Id = 1, Name = "Электроника" };
 
         // Действие
         var results = ValidationHelper.Validate(category);
@@ -78,6 +67,18 @@ public class CategoryTests
 [TestFixture]
 public class EmployeeTests
 {
+    // Вспомогательный метод для создания валидной организации
+    private Organization GetValidOrganization()
+    {
+        return new Organization 
+        { 
+            Id = 1, 
+            Name = "ООО Рога и Копыта", 
+            Inn = "1234567890", 
+            Address = "г Москва, ул Пушкина, д 1" 
+        };
+    }
+
     [Test]
     public void Attributes_Phone_Exists()
     {
@@ -98,8 +99,8 @@ public class EmployeeTests
         var employee = new Employee 
         { 
             Id = 1, 
-            OrganizationId = Guid.NewGuid(), 
-            Name = "Ivanov Ivan", 
+            Organization = GetValidOrganization(), 
+            Name = "Иванов Иван", 
             Phone = "89001234567" 
         };
 
@@ -117,8 +118,8 @@ public class EmployeeTests
         var employee = new Employee 
         { 
             Id = 1, 
-            OrganizationId = Guid.NewGuid(), 
-            Name = "Ivanov Ivan", 
+            Organization = GetValidOrganization(), 
+            Name = "Иванов Иван", 
             Phone = null 
         };
 
@@ -136,8 +137,8 @@ public class EmployeeTests
         var employee = new Employee 
         { 
             Id = 1, 
-            OrganizationId = Guid.NewGuid(), 
-            Name = "Ivanov", 
+            Organization = GetValidOrganization(), 
+            Name = "Иванов", 
             Phone = "8900ABC4567" 
         };
 
@@ -155,8 +156,8 @@ public class EmployeeTests
         var employee = new Employee 
         { 
             Id = 1, 
-            OrganizationId = Guid.NewGuid(), 
-            Name = "Ivanov", 
+            Organization = GetValidOrganization(), 
+            Name = "Иванов", 
             Phone = "8_900_123_45_67"
         };
 
@@ -193,8 +194,8 @@ public class OrganizationTests
         var org = new Organization 
         { 
             Id = 1, 
-            Name = "OOO Test", 
-            Address = "123456, City, Street, 1", 
+            Name = "ООО Тест", 
+            Address = "г Москва, ул Ленина, д 1", // Валидный адрес
             Inn = "1234A67890" 
         };
 
@@ -212,8 +213,8 @@ public class OrganizationTests
         var org = new Organization 
         { 
             Id = 1, 
-            Name = "OOO Test", 
-            Address = "123456, City, Street, 1", 
+            Name = "ООО Тест", 
+            Address = "г Москва, ул Ленина, д 1", 
             Inn = "123" 
         };
 
@@ -225,14 +226,14 @@ public class OrganizationTests
     }
 
     [Test]
-    public void Create_AddressNoDigits_Fail()
+    public void Create_AddressLatinCharacters_Fail()
     {
         // Подготовка
         var org = new Organization 
         { 
             Id = 1, 
-            Name = "OOO Test", 
-            Address = "No index here", 
+            Name = "ООО Тест", 
+            Address = "Some Street 123", // Латиница запрещена новым Regex
             Inn = "1234567890" 
         };
 
@@ -240,13 +241,20 @@ public class OrganizationTests
         var results = ValidationHelper.Validate(org);
 
         // Проверка
-        Assert.That(results.Any(r => r.ErrorMessage!.Contains("недопустимые символы") || r.ErrorMessage!.Contains("Длина")), Is.True);
+        // Ошибка может быть о недопустимых символах
+        Assert.That(results.Any(r => r.ErrorMessage!.Contains("недопустимые символы") || r.ErrorMessage!.Contains("формат")), Is.True);
     }
 }
 
 [TestFixture]
 public class NomenclatureTests
 {
+    // Вспомогательный метод
+    private Category GetValidCategory()
+    {
+        return new Category { Id = 1, Name = "Категория 1" };
+    }
+
     [Test]
     public void Attributes_Price_Exists()
     {
@@ -267,8 +275,8 @@ public class NomenclatureTests
         var nom = new Nomenclature 
         { 
             Id = 1, 
-            CategoryId = 1, 
-            Name = "Item", 
+            Category = GetValidCategory(),
+            Name = "Товар", 
             UnitOfMeasure = "шт", 
             Price = -50m 
         };
@@ -287,8 +295,8 @@ public class NomenclatureTests
         var nom = new Nomenclature 
         { 
             Id = 1, 
-            CategoryId = 1, 
-            Name = "Item", 
+            Category = GetValidCategory(),
+            Name = "Товар", 
             UnitOfMeasure = "шт", 
             Price = 0m 
         };
@@ -307,8 +315,8 @@ public class NomenclatureTests
         var nom = new Nomenclature 
         { 
             Id = 1, 
-            CategoryId = 1, 
-            Name = "Item", 
+            Category = GetValidCategory(),
+            Name = "Товар", 
             UnitOfMeasure = "unknown", 
             Price = 10m 
         };
@@ -324,6 +332,32 @@ public class NomenclatureTests
 [TestFixture]
 public class TransactionTests
 {
+    // Вспомогательные методы для создания зависимостей
+    private Employee GetValidEmployee()
+    {
+        return new Employee 
+        { 
+            Id = 1, 
+            Name = "Иванов", 
+            Organization = new Organization 
+            { 
+                Id = 1, Name = "ООО", Inn = "1234567890", Address = "г Москва" 
+            } 
+        };
+    }
+
+    private Nomenclature GetValidNomenclature()
+    {
+        return new Nomenclature 
+        { 
+            Id = 1, 
+            Name = "Товар", 
+            Price = 100, 
+            UnitOfMeasure = "шт",
+            Category = new Category { Id = 1, Name = "Категория" }
+        };
+    }
+
     [Test]
     public void Create_FutureDate_Fail()
     {
@@ -331,8 +365,8 @@ public class TransactionTests
         var tran = new Transaction 
         { 
             Id = 1, 
-            NomenclatureId = 1, 
-            EmployeeId = 1, 
+            Nomenclature = GetValidNomenclature(), 
+            Employee = GetValidEmployee(), 
             OperationType = OperationType.Sale, 
             Quantity = 1, 
             Amount = 10, 
@@ -353,8 +387,8 @@ public class TransactionTests
         var tran = new Transaction 
         { 
             Id = 1, 
-            NomenclatureId = 1, 
-            EmployeeId = 1, 
+            Nomenclature = GetValidNomenclature(), 
+            Employee = GetValidEmployee(), 
             OperationType = OperationType.Sale, 
             Quantity = 0, 
             Amount = 10, 
@@ -375,8 +409,8 @@ public class TransactionTests
         var tran = new Transaction 
         { 
             Id = 1, 
-            NomenclatureId = 1, 
-            EmployeeId = 1, 
+            Nomenclature = GetValidNomenclature(), 
+            Employee = GetValidEmployee(), 
             OperationType = OperationType.Sale, 
             Quantity = 1, 
             Amount = -100, 

@@ -10,12 +10,12 @@ public class Category : IId
     public long Id { get; set; }
 
     /// <summary>
-    /// ID родителя
+    /// Родительская категория (может быть null, если это корневая категория)
     /// </summary>
-    public int? ParentId { get; set; }
+    public Category? Parent { get; set; }
 
     /// <summary>
-    /// Название ктегории
+    /// Название категории
     /// </summary>
     [CategoryName]
     public required string Name { get; set; }

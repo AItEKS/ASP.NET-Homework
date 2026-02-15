@@ -34,14 +34,14 @@ public class Transaction
     public long Id { get; set; }
 
     /// <summary> 
-    /// ID номенклатуры 
+    /// Номенклатура 
     /// </summary>
-    public required long NomenclatureId { get; set; }
+    public required Nomenclature Nomenclature { get; set; }
 
     /// <summary>
     /// Ответственный сотрудник
     /// </summary>
-    public required long EmployeeId { get; set; }
+    public required Employee Employee { get; set; }
 
     /// <summary>
     /// Дата совершения операции (на чеке)

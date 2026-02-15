@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 public class OrgAddressAttribute : ValidationAttribute
 {
-    private const string Pattern = @"^(\d{6})?[\s,]+[а-яА-ЯёЁ0-9\s.,\-\/№()]+$";
+    private const string Pattern = @"^(\d{6}[\s,]+)?[а-яА-ЯёЁ0-9\s.,\-\/№()]+$";
 
     private static readonly Regex _addressFormatRegex = new Regex(
         Pattern,

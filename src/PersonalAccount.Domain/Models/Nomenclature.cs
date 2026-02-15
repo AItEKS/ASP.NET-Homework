@@ -10,9 +10,9 @@ public class Nomenclature : IId
     public long Id { get; set; }
 
     /// <summary>
-    /// ID категории
+    /// Категория товара
     /// </summary>
-    public required int CategoryId { get; set; }
+    public required Category Category { get; set; }
 
     /// <summary>
     /// Название товара

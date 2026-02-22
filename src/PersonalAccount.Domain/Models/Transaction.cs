@@ -10,9 +10,14 @@ namespace PersonalAccount.Domain.Models;
 /// </summary>
 public enum OperationType
 {
-    Sale = 1,       // Продажа
-    Return = 2,     // Возврат
-    WriteOff = 3    // Списание
+    StartWork = 386,
+    EndWork = 387,
+    Total = 501,
+    WriteOffAtCost = 111,
+    Cash = 211,
+    Visa = 216,
+    Login = 301,
+    PluSales = 101
 }
 
 /// <summary>

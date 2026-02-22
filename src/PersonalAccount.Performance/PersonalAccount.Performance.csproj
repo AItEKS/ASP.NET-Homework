@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PersonalAccount.Domain\PersonalAccount.Domain.csproj" />
+    <ProjectReference Include="..\PersonalAccount.Console\PersonalAccount.Console.csproj" />
   </ItemGroup>
 
   <ItemGroup>

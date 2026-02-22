@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersonalAccount.UnitTests",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersonalAccount.Console", "src\PersonalAccount.Console\PersonalAccount.Console.csproj", "{9690C277-984C-479C-9D16-7616081CE35F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersonalAccount.Performance", "src\PersonalAccount.Performance\PersonalAccount.Performance.csproj", "{3F812042-B061-416B-99A8-6FD53E2E0A4D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,10 +36,15 @@ Global
 		{9690C277-984C-479C-9D16-7616081CE35F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9690C277-984C-479C-9D16-7616081CE35F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9690C277-984C-479C-9D16-7616081CE35F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F812042-B061-416B-99A8-6FD53E2E0A4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F812042-B061-416B-99A8-6FD53E2E0A4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F812042-B061-416B-99A8-6FD53E2E0A4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F812042-B061-416B-99A8-6FD53E2E0A4D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{A3183CC7-F9A6-465F-8723-F06ADA2208D7} = {4156C7B9-CBBB-4468-8FAB-99B088DAA302}
 		{8BFE0533-3724-48FF-88F9-00BE8BEE47A8} = {1E564D8E-F036-44D8-87CB-8EA54544A133}
 		{9690C277-984C-479C-9D16-7616081CE35F} = {4156C7B9-CBBB-4468-8FAB-99B088DAA302}
+		{3F812042-B061-416B-99A8-6FD53E2E0A4D} = {4156C7B9-CBBB-4468-8FAB-99B088DAA302}
 	EndGlobalSection
 EndGlobal

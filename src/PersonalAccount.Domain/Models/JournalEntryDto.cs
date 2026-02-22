@@ -1,38 +1,40 @@
-using System.ComponentModel.DataAnnotations;
 using PersonalAccount.Domain.Validation;
 
 namespace PersonalAccount.Domain.Dto;
 
 /// <summary>
-/// DTO для передачи записи журнала (чека) от клиента на сервер
+/// DTO для передачи записи журнала
 /// </summary>
 public class JournalEntryDto
 {
     /// <summary>
     /// ID записи
     /// </summary>
-    public required long Id { get; set; }
+    [DbColumn("transnumber", typeof(int))]
+    public int Id { get; set; }
 
     /// <summary>
     /// ID номера чека
     /// </summary>
-    [CheckNumber]
-    public required string CheckNumber { get; set; }
+    [DbColumn("receiptn", typeof(int))]
+    public int CheckNumber { get; set; }
 
     /// <summary>
     /// ID сотрудника
     /// </summary>
-    public long? EmployeeCode { get; set; }
+    [DbColumn("loginid", typeof(int))]
+    public int? EmployeeCode { get; set; }
 
     /// <summary>
     /// ID номенклатуры
     /// </summary>
-    public long? NomenclatureCode { get; set; }
+    [DbColumn("id", typeof(string))]
+    public string? NomenclatureCode { get; set; }
 
     /// <summary>
     /// Описание
     /// </summary>
-    [Description]
+    [DbColumn("description", typeof(string))]
     public string? Description { get; set; }
 
     /// <summary>
@@ -43,27 +45,32 @@ public class JournalEntryDto
     /// <summary>
     /// ID операции
     /// </summary>
-    public required long OperationCode { get; set; }
+    [DbColumn("transtype", typeof(int))]
+    public int OperationCode { get; set; }
 
     /// <summary>
     /// Дата транзакции с временной зоной
     /// </summary>
-    public required DateTimeOffset TransactionDate { get; set; }
+    [DbColumn("dater", typeof(DateTime))]
+    public DateTimeOffset TransactionDate { get; set; }
 
     /// <summary>
     /// Количество
     /// </summary>
     [NotZero]
-    public required decimal Quantity { get; set; }
+    [DbColumn("quantity", typeof(decimal))]
+    public decimal Quantity { get; set; }
 
     /// <summary>
     /// Сумма
     /// </summary>
     [PositiveMoney]
-    public required decimal Amount { get; set; }
+    [DbColumn("amount", typeof(decimal))]
+    public decimal Amount { get; set; }
 
     /// <summary>
     /// Сумма скидки
     /// </summary>
+    [DbColumn("discountamount", typeof(decimal))]
     public decimal Discount { get; set; }
 }

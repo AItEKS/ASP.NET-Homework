@@ -367,7 +367,7 @@ public class TransactionTests
             Id = 1, 
             Nomenclature = GetValidNomenclature(), 
             Employee = GetValidEmployee(), 
-            OperationType = OperationType.Sale, 
+            OperationType = OperationType.Cash, 
             Quantity = 1, 
             Amount = 10, 
             OperationDate = DateTimeOffset.Now.AddDays(1) 
@@ -389,7 +389,7 @@ public class TransactionTests
             Id = 1, 
             Nomenclature = GetValidNomenclature(), 
             Employee = GetValidEmployee(), 
-            OperationType = OperationType.Sale, 
+            OperationType = OperationType.Cash, 
             Quantity = 0, 
             Amount = 10, 
             OperationDate = DateTimeOffset.Now 
@@ -411,7 +411,7 @@ public class TransactionTests
             Id = 1, 
             Nomenclature = GetValidNomenclature(), 
             Employee = GetValidEmployee(), 
-            OperationType = OperationType.Sale, 
+            OperationType = OperationType.Cash, 
             Quantity = 1, 
             Amount = -100, 
             OperationDate = DateTimeOffset.Now 
@@ -490,47 +490,13 @@ public class ImportSettingsTests
 public class JournalEntryDtoTests
 {
     [Test]
-    public void Attributes_CheckNumber_Exists()
-    {
-        // Подготовка
-        var type = typeof(JournalEntryDto);
-
-        // Действие
-        var attr = type.GetProperty(nameof(JournalEntryDto.CheckNumber))?.GetCustomAttribute<CheckNumberAttribute>();
-
-        // Проверка
-        Assert.That(attr, Is.Not.Null);
-    }
-
-    [Test]
-    public void Create_CheckNumberTooLong_Fail()
-    {
-        // Подготовка
-        var dto = new JournalEntryDto
-        {
-            Id = 1,
-            CheckNumber = "123456789012345678901", // 21 символ
-            OperationCode = 1,
-            TransactionDate = DateTimeOffset.Now,
-            Quantity = 1,
-            Amount = 100
-        };
-
-        // Действие
-        var results = ValidationHelper.Validate(dto);
-
-        // Проверка
-        Assert.That(results.Any(r => r.ErrorMessage!.Contains("20 символов")), Is.True);
-    }
-
-    [Test]
     public void Create_DescriptionTooLong_Fail()
     {
         // Подготовка
         var dto = new JournalEntryDto
         {
             Id = 1,
-            CheckNumber = "123",
+            CheckNumber = 123,
             Description = new string('A', 256), // 256 символов
             OperationCode = 1,
             TransactionDate = DateTimeOffset.Now,

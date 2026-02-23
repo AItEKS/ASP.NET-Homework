@@ -49,6 +49,10 @@ int quarterNumber = (baseDate.Month - 1) / 3 + 1;
 DateTime startQuarter = new DateTime(baseDate.Year, (quarterNumber - 1) * 3 + 1, 1);
 DateTime endQuarter = startQuarter.AddMonths(3).AddSeconds(-1);
 
+try {
+    provider.GetTransactions(DateTime.Now, DateTime.Now); 
+} catch {}
+
 Measure("Загрузка за ДЕНЬ", () => 
 {
     var data = provider.GetTransactions(startDay, endDay);

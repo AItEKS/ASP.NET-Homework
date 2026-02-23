@@ -12,7 +12,6 @@ public enum OperationType
 {
     StartWork = 386,
     EndWork = 387,
-    Total = 501,
     WriteOffAtCost = 111,
     Cash = 211,
     Visa = 216,

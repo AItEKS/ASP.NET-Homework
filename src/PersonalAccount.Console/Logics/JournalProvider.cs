@@ -22,7 +22,22 @@ public class JournalProvider
         {
             connection.Open();
 
-            string sql = "select * from [dbo].[journal] where dater >= @start and dater <= @end";
+            string sql = @"
+                SELECT 
+                    t.*, 
+
+                    CASE 
+                        WHEN t.transtype IN (101, 111) THEN CAST(t.id AS varchar(50))
+                        ELSE NULL 
+                    END AS CalcNomenclature,
+
+                    CASE 
+                        WHEN t.transtype IN (386, 387) THEN CAST(t.id AS int)
+                        ELSE CAST(t.loginid AS int)
+                    END AS CalcEmployee
+
+                FROM [dbo].[journal] t
+                WHERE t.dater >= @start AND t.dater <= @end";
 
             using (var command = new SqlCommand(sql, connection))
             {

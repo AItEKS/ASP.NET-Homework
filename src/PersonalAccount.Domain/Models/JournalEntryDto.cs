@@ -22,13 +22,13 @@ public class JournalEntryDto
     /// <summary>
     /// ID сотрудника
     /// </summary>
-    [DbColumn("loginid", typeof(int))]
+    [DbColumn("CalcEmployee", typeof(int))]
     public int? EmployeeCode { get; set; }
 
     /// <summary>
     /// ID номенклатуры
     /// </summary>
-    [DbColumn("id", typeof(string))]
+    [DbColumn("CalcNomenclature", typeof(string))]
     public string? NomenclatureCode { get; set; }
 
     /// <summary>

@@ -32,4 +32,9 @@ public class ImportSettings
     /// </summary>
     [BatchSize]
     public int BatchSize { get; set; } = 100;
+
+    /// <summary>
+    /// ID организации
+    /// </summary>
+    public required Organization OrganizationID { get; set; }
 }

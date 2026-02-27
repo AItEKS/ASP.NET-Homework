@@ -18,14 +18,18 @@ public class ImportSettings
     public required ImportSourceType SourceType { get; set; }
 
     /// <summary>
+    /// Описание настройки
+    /// </summary>
+    public required string Description { get; set; }
+
+    /// <summary>
+    /// Уникальный код транзакции для начала загрузки.
+    /// </summary>
+    public required long StartPosition { get; set; }
+
+    /// <summary>
     /// Размер пакета (батча) для вставки
     /// </summary>
     [BatchSize]
     public int BatchSize { get; set; } = 100;
-
-    /// <summary>
-    /// Маппинг колонок (конфигурация в JSON)
-    /// </summary>
-    [ValidJson]
-    public required string ColumnMapping { get; set; }
 }

@@ -6,6 +6,15 @@ CREATE TABLE IF NOT EXISTS "organization" (
 	PRIMARY KEY ("id")
 );
 
+CREATE TABLE IF NOT EXISTS "users" (
+	"id" bigserial NOT NULL UNIQUE,
+	"organization_id" bigint NOT NULL,
+	"login" varchar(100) NOT NULL UNIQUE,
+	"password_hash" text NOT NULL,
+	"role" varchar(50) NOT NULL DEFAULT 'User',
+	PRIMARY KEY ("id")
+);
+
 CREATE TABLE IF NOT EXISTS "employee" (
 	"id" bigserial NOT NULL UNIQUE,
 	"organization_id" bigint NOT NULL,
@@ -54,6 +63,10 @@ CREATE TABLE IF NOT EXISTS "import_settings" (
 	"batch_size" integer NOT NULL DEFAULT 100,
 	PRIMARY KEY ("id")
 );
+
+ALTER TABLE "users" 
+    ADD CONSTRAINT "users_fk_org" 
+    FOREIGN KEY ("organization_id") REFERENCES "organization"("id");
 
 ALTER TABLE "employee" 
     ADD CONSTRAINT "employee_fk_org" 

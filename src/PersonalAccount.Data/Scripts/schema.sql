@@ -8,11 +8,18 @@ CREATE TABLE IF NOT EXISTS "organization" (
 
 CREATE TABLE IF NOT EXISTS "users" (
 	"id" bigserial NOT NULL UNIQUE,
-	"organization_id" bigint NOT NULL,
 	"login" varchar(100) NOT NULL UNIQUE,
 	"password_hash" text NOT NULL,
 	"role" varchar(50) NOT NULL DEFAULT 'User',
 	PRIMARY KEY ("id")
+);
+
+CREATE TABLE IF NOT EXISTS "organization_users" (
+    "organization_id" bigint NOT NULL,
+    "user_id" bigint NOT NULL,
+    PRIMARY KEY ("organization_id", "user_id"),
+    CONSTRAINT "fk_org_user_org" FOREIGN KEY ("organization_id") REFERENCES "organization"("id"),
+    CONSTRAINT "fk_org_user_usr" FOREIGN KEY ("user_id") REFERENCES "users"("id")
 );
 
 CREATE TABLE IF NOT EXISTS "employee" (
@@ -40,7 +47,7 @@ CREATE TABLE IF NOT EXISTS "nomenclature" (
 );
 
 CREATE TABLE IF NOT EXISTS "transaction" (
-	"id" bigserial NOT NULL UNIQUE,
+	"id" uuid NOT NULL UNIQUE DEFAULT gen_random_uuid(),
 	"nomenclature_id" bigint NOT NULL,
 	"employee_id" bigint NOT NULL,
 	
@@ -63,10 +70,6 @@ CREATE TABLE IF NOT EXISTS "import_settings" (
 	"batch_size" integer NOT NULL DEFAULT 100,
 	PRIMARY KEY ("id")
 );
-
-ALTER TABLE "users" 
-    ADD CONSTRAINT "users_fk_org" 
-    FOREIGN KEY ("organization_id") REFERENCES "organization"("id");
 
 ALTER TABLE "employee" 
     ADD CONSTRAINT "employee_fk_org" 

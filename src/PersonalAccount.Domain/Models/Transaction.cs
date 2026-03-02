@@ -35,7 +35,7 @@ public class Transaction
     /// <summary>
     /// ID транзакции
     /// </summary>
-    public long Id { get; set; }
+    public Guid Id { get; set; }
 
     /// <summary> 
     /// Номенклатура 

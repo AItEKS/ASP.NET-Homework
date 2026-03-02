@@ -1,13 +1,18 @@
-TRUNCATE TABLE "users", "transaction", "import_settings", "nomenclature", "category", "employee", "organization" RESTART IDENTITY CASCADE;
+TRUNCATE TABLE "organization_users", "users", "transaction", "import_settings", "nomenclature", "category", "employee", "organization" RESTART IDENTITY CASCADE;
 
 INSERT INTO "organization" ("name", "inn", "address") VALUES
 ('ООО "Ромашка"', '7701234567', 'г. Москва, ул. Ленина, д. 10'),
 ('ЗАО "Торговый Дом"', '7809876543', 'г. Санкт-Петербург, Невский пр., д. 25');
 
-INSERT INTO "users" ("organization_id", "login", "password_hash", "role") VALUES
-(1, 'admin_romashka', 'hashed_secret_123', 'Admin'),
-(1, 'manager_romashka', 'hashed_secret_456', 'User'),
-(2, 'director_td', 'hashed_secret_789', 'Admin');
+INSERT INTO "users" ("login", "password_hash", "role") VALUES
+('admin_romashka', 'hashed_secret_123', 'Admin'), 
+('manager_romashka', 'hashed_secret_456', 'User'),
+('director_td', 'hashed_secret_789', 'Admin');
+
+INSERT INTO "organization_users" ("organization_id", "user_id") VALUES
+(1, 1),
+(1, 2),
+(2, 3);
 
 INSERT INTO "employee" ("organization_id", "name", "phone") VALUES
 (1, 'Иванов Иван Иванович', '+79001112233'), 

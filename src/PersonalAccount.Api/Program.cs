@@ -11,5 +11,5 @@ var options = configuration.Get<ApplicationOptions>() ?? throw new InvalidOperat
 
 var initializer = new DatabaseInitializer(options.ConnectionString);
 
-initializer.Init();
-initializer.SeedData();
+initializer.ExecuteSqlScript("schema.sql");
+initializer.ExecuteSqlScript("mock_data.sql");

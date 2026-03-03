@@ -7,7 +7,7 @@ public class Organization : IId
     /// <summary>
     /// ID организации
     /// </summary>
-    public long Id { get; set; }
+    public Guid Id { get; set; }
     
     /// <summary>
     /// Название организации 

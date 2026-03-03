@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS "organization" (
-	"id" bigserial NOT NULL UNIQUE,
+	"id" uuid NOT NULL UNIQUE,
 	"name" varchar(255) NOT NULL,
 	"inn" varchar(20) NOT NULL,
 	"address" text NOT NULL,
@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS "organization" (
 );
 
 CREATE TABLE IF NOT EXISTS "users" (
-	"id" bigserial NOT NULL UNIQUE,
+	"id" uuid NOT NULL UNIQUE,
 	"login" varchar(100) NOT NULL UNIQUE,
 	"password_hash" text NOT NULL,
 	"role" varchar(50) NOT NULL DEFAULT 'User',
@@ -15,31 +15,31 @@ CREATE TABLE IF NOT EXISTS "users" (
 );
 
 CREATE TABLE IF NOT EXISTS "organization_users" (
-    "organization_id" bigint NOT NULL,
-    "user_id" bigint NOT NULL,
+    "organization_id" uuid NOT NULL,
+    "user_id" uuid NOT NULL,
     PRIMARY KEY ("organization_id", "user_id"),
     CONSTRAINT "fk_org_user_org" FOREIGN KEY ("organization_id") REFERENCES "organization"("id"),
     CONSTRAINT "fk_org_user_usr" FOREIGN KEY ("user_id") REFERENCES "users"("id")
 );
 
 CREATE TABLE IF NOT EXISTS "employee" (
-	"id" bigserial NOT NULL UNIQUE,
-	"organization_id" bigint NOT NULL,
+	"id" uuid NOT NULL UNIQUE,
+	"organization_id" uuid NOT NULL,
 	"name" varchar(255) NOT NULL,
 	"phone" varchar(50),
 	PRIMARY KEY ("id")
 );
 
 CREATE TABLE IF NOT EXISTS "category" (
-	"id" bigserial NOT NULL UNIQUE,
-	"parent_id" bigint,
+	"id" uuid NOT NULL UNIQUE,
+	"parent_id" uuid,
 	"name" varchar(255) NOT NULL,
 	PRIMARY KEY ("id")
 );
 
 CREATE TABLE IF NOT EXISTS "nomenclature" (
-	"id" bigserial NOT NULL UNIQUE,
-	"category_id" bigint NOT NULL,
+	"id" uuid NOT NULL UNIQUE,
+	"category_id" uuid NOT NULL,
 	"name" varchar(255) NOT NULL,
 	"price" numeric(18, 2) NOT NULL,
 	"unit_of_measure" varchar(50) NOT NULL,
@@ -47,9 +47,9 @@ CREATE TABLE IF NOT EXISTS "nomenclature" (
 );
 
 CREATE TABLE IF NOT EXISTS "transaction" (
-	"id" uuid NOT NULL UNIQUE DEFAULT gen_random_uuid(),
-	"nomenclature_id" bigint NOT NULL,
-	"employee_id" bigint NOT NULL,
+	"id" uuid NOT NULL UNIQUE,
+	"nomenclature_id" uuid NOT NULL,
+	"employee_id" uuid NOT NULL,
 	
 	"operation_date" timestamptz NOT NULL, 
 	"created_at" timestamptz NOT NULL DEFAULT NOW(),
@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS "transaction" (
 
 CREATE TABLE IF NOT EXISTS "import_settings" (
 	"id" uuid NOT NULL UNIQUE,
-	"organization_id" bigint NOT NULL,
+	"organization_id" uuid NOT NULL,
 	"source_type" integer NOT NULL,
 	"description" varchar(255) NOT NULL,
 	"start_position" bigint NOT NULL DEFAULT 0,

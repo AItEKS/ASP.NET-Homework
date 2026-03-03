@@ -12,36 +12,9 @@ public class DatabaseInitializer
         _connectionString = connectionString;
     }
 
-    public void Init()
+    public void ExecuteSqlScript(string scriptPath)
     {
-        string script = GetSqlScript("schema.sql");
-
-        if (string.IsNullOrWhiteSpace(script))
-        {
-            throw new Exception("SQL скрипт пуст или не найден");
-        }
-
-        using (var connection = new NpgsqlConnection(_connectionString))
-        {
-            try
-            {
-                connection.Open();
-
-                using (var command = new NpgsqlCommand(script, connection))
-                {
-                    command.ExecuteNonQuery();
-                }
-            }
-            catch
-            {
-                throw;
-            }
-        }
-    }
-
-    public void SeedData()
-    {
-        string script = GetSqlScript("mock_data.sql");
+        string script = GetSqlScript(scriptPath);
         
         if (string.IsNullOrWhiteSpace(script)) return;
 

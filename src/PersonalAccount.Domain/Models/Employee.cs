@@ -8,7 +8,7 @@ public class Employee : IId
     /// <summary>
     /// ID сотрудника 
     /// </summary>
-    public long Id { get; set; }
+    public Guid Id { get; set; }
     
     /// <summary>
     /// Имя сотрудника 

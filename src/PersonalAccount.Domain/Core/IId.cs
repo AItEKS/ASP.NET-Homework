@@ -10,7 +10,7 @@ public interface IId
     /// <summary>
     /// Универсальный код
     /// </summary>
-    public long Id { get; set; }
+    public Guid Id { get; set; }
 
     /// <summary>
     /// Наименование ктегории

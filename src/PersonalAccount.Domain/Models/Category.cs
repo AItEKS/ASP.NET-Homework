@@ -7,7 +7,7 @@ public class Category : IId
     /// <summary>
     /// ID категории
     /// </summary>
-    public long Id { get; set; }
+    public Guid Id { get; set; }
 
     /// <summary>
     /// Родительская категория (может быть null, если это корневая категория)

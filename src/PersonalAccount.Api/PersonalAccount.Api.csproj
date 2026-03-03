@@ -1,18 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\PersonalAccount.Domain\PersonalAccount.Domain.csproj" />
+    <ProjectReference Include="..\PersonalAccount.Data\PersonalAccount.Data.csproj" />
+    <ProjectReference Include="..\PersonalAccount.Console\PersonalAccount.Console.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DbUp" Version="5.0.41" />
-    <PackageReference Include="Microsoft.Data.Sqlclient" Version="6.1.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="9.0.13" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.3" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.3" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.3" />
-    <PackageReference Include="Npgsql" Version="10.0.1" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
   </ItemGroup>
 
   <PropertyGroup>

@@ -7,7 +7,7 @@ public class Nomenclature : IId
     /// <summary>
     /// ID номенклатуры
     /// </summary>
-    public long Id { get; set; }
+    public Guid Id { get; set; }
 
     /// <summary>
     /// Категория товара

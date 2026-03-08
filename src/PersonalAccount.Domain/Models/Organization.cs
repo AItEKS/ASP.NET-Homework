@@ -26,4 +26,9 @@ public class Organization : IId
     /// </summary>
     [OrgAddress]
     public required string Address { get; set; }
+
+    /// <summary>
+    /// Настройки загрузки 
+    /// </summary>
+    public ImportSettings? Settings { get; set; }
 }

@@ -28,7 +28,7 @@ public class CategoryTests
     public void Create_ValidCategory_Success()
     {
         // Подготовка
-        var category = new Category { Id = 1, Name = "Электроника" };
+        var category = new Category { Id = Guid.NewGuid(), Name = "Электроника" };
 
         // Действие
         var results = ValidationHelper.Validate(category);
@@ -41,7 +41,7 @@ public class CategoryTests
     public void Create_NameTooShort_Fail()
     {
         // Подготовка
-        var category = new Category { Id = 1, Name = "A" };
+        var category = new Category { Id = Guid.NewGuid(), Name = "A" };
 
         // Действие
         var results = ValidationHelper.Validate(category);
@@ -54,7 +54,7 @@ public class CategoryTests
     public void Create_NameEmpty_Fail()
     {
         // Подготовка
-        var category = new Category { Id = 1, Name = "   " };
+        var category = new Category { Id = Guid.NewGuid(), Name = "   " };
 
         // Действие
         var results = ValidationHelper.Validate(category);
@@ -67,15 +67,17 @@ public class CategoryTests
 [TestFixture]
 public class EmployeeTests
 {
-    // Вспомогательный метод для создания валидной организации
-    private Organization GetValidOrganization()
+    private List<Organization> GetValidOrganizations()
     {
-        return new Organization 
-        { 
-            Id = 1, 
-            Name = "ООО Рога и Копыта", 
-            Inn = "1234567890", 
-            Address = "г Москва, ул Пушкина, д 1" 
+        return new List<Organization> 
+        {
+            new Organization 
+            { 
+                Id = Guid.NewGuid(), 
+                Name = "ООО Рога и Копыта", 
+                Inn = "1234567890", 
+                Address = "г Москва, ул Пушкина, д 1" 
+            }
         };
     }
 
@@ -98,8 +100,8 @@ public class EmployeeTests
         // Подготовка
         var employee = new Employee 
         { 
-            Id = 1, 
-            Organization = GetValidOrganization(), 
+            Id = Guid.NewGuid(), 
+            Organization = GetValidOrganizations(), 
             Name = "Иванов Иван", 
             Phone = "89001234567" 
         };
@@ -117,8 +119,8 @@ public class EmployeeTests
         // Подготовка
         var employee = new Employee 
         { 
-            Id = 1, 
-            Organization = GetValidOrganization(), 
+            Id = Guid.NewGuid(), 
+            Organization = GetValidOrganizations(), 
             Name = "Иванов Иван", 
             Phone = null 
         };
@@ -136,8 +138,8 @@ public class EmployeeTests
         // Подготовка
         var employee = new Employee 
         { 
-            Id = 1, 
-            Organization = GetValidOrganization(), 
+            Id = Guid.NewGuid(), 
+            Organization = GetValidOrganizations(), 
             Name = "Иванов", 
             Phone = "8900ABC4567" 
         };
@@ -155,8 +157,8 @@ public class EmployeeTests
         // Подготовка
         var employee = new Employee 
         { 
-            Id = 1, 
-            Organization = GetValidOrganization(), 
+            Id = Guid.NewGuid(), 
+            Organization = GetValidOrganizations(), 
             Name = "Иванов", 
             Phone = "8_900_123_45_67"
         };
@@ -193,9 +195,9 @@ public class OrganizationTests
         // Подготовка
         var org = new Organization 
         { 
-            Id = 1, 
+            Id = Guid.NewGuid(), 
             Name = "ООО Тест", 
-            Address = "г Москва, ул Ленина, д 1", // Валидный адрес
+            Address = "г Москва, ул Ленина, д 1", 
             Inn = "1234A67890" 
         };
 
@@ -212,7 +214,7 @@ public class OrganizationTests
         // Подготовка
         var org = new Organization 
         { 
-            Id = 1, 
+            Id = Guid.NewGuid(), 
             Name = "ООО Тест", 
             Address = "г Москва, ул Ленина, д 1", 
             Inn = "123" 
@@ -231,9 +233,9 @@ public class OrganizationTests
         // Подготовка
         var org = new Organization 
         { 
-            Id = 1, 
+            Id = Guid.NewGuid(), 
             Name = "ООО Тест", 
-            Address = "Some Street 123", // Латиница запрещена новым Regex
+            Address = "Some Street 123", 
             Inn = "1234567890" 
         };
 
@@ -241,7 +243,6 @@ public class OrganizationTests
         var results = ValidationHelper.Validate(org);
 
         // Проверка
-        // Ошибка может быть о недопустимых символах
         Assert.That(results.Any(r => r.ErrorMessage!.Contains("недопустимые символы") || r.ErrorMessage!.Contains("формат")), Is.True);
     }
 }
@@ -249,10 +250,9 @@ public class OrganizationTests
 [TestFixture]
 public class NomenclatureTests
 {
-    // Вспомогательный метод
     private Category GetValidCategory()
     {
-        return new Category { Id = 1, Name = "Категория 1" };
+        return new Category { Id = Guid.NewGuid(), Name = "Категория 1" };
     }
 
     [Test]
@@ -274,7 +274,7 @@ public class NomenclatureTests
         // Подготовка
         var nom = new Nomenclature 
         { 
-            Id = 1, 
+            Id = Guid.NewGuid(), 
             Category = GetValidCategory(),
             Name = "Товар", 
             UnitOfMeasure = "шт", 
@@ -294,7 +294,7 @@ public class NomenclatureTests
         // Подготовка
         var nom = new Nomenclature 
         { 
-            Id = 1, 
+            Id = Guid.NewGuid(), 
             Category = GetValidCategory(),
             Name = "Товар", 
             UnitOfMeasure = "шт", 
@@ -314,7 +314,7 @@ public class NomenclatureTests
         // Подготовка
         var nom = new Nomenclature 
         { 
-            Id = 1, 
+            Id = Guid.NewGuid(), 
             Category = GetValidCategory(),
             Name = "Товар", 
             UnitOfMeasure = "unknown", 
@@ -332,16 +332,21 @@ public class NomenclatureTests
 [TestFixture]
 public class TransactionTests
 {
-    // Вспомогательные методы для создания зависимостей
     private Employee GetValidEmployee()
     {
         return new Employee 
         { 
-            Id = 1, 
+            Id = Guid.NewGuid(), 
             Name = "Иванов", 
-            Organization = new Organization 
+            Organization = new List<Organization> 
             { 
-                Id = 1, Name = "ООО", Inn = "1234567890", Address = "г Москва" 
+                new Organization 
+                { 
+                    Id = Guid.NewGuid(), 
+                    Name = "ООО", 
+                    Inn = "1234567890", 
+                    Address = "г Москва" 
+                } 
             } 
         };
     }
@@ -350,11 +355,11 @@ public class TransactionTests
     {
         return new Nomenclature 
         { 
-            Id = 1, 
+            Id = Guid.NewGuid(), 
             Name = "Товар", 
             Price = 100, 
             UnitOfMeasure = "шт",
-            Category = new Category { Id = 1, Name = "Категория" }
+            Category = new Category { Id = Guid.NewGuid(), Name = "Категория" }
         };
     }
 
@@ -364,7 +369,7 @@ public class TransactionTests
         // Подготовка
         var tran = new Transaction 
         { 
-            Id = 1, 
+            Id = Guid.NewGuid(), 
             Nomenclature = GetValidNomenclature(), 
             Employee = GetValidEmployee(), 
             OperationType = OperationType.Cash, 
@@ -386,7 +391,7 @@ public class TransactionTests
         // Подготовка
         var tran = new Transaction 
         { 
-            Id = 1, 
+            Id = Guid.NewGuid(), 
             Nomenclature = GetValidNomenclature(), 
             Employee = GetValidEmployee(), 
             OperationType = OperationType.Cash, 
@@ -408,7 +413,7 @@ public class TransactionTests
         // Подготовка
         var tran = new Transaction 
         { 
-            Id = 1, 
+            Id = Guid.NewGuid(), 
             Nomenclature = GetValidNomenclature(), 
             Employee = GetValidEmployee(), 
             OperationType = OperationType.Cash, 
@@ -429,34 +434,15 @@ public class TransactionTests
 public class ImportSettingsTests
 {
     [Test]
-    public void Create_InvalidJson_Fail()
-    {
-        // Подготовка
-        var settings = new ImportSettings 
-        { 
-            Id = Guid.NewGuid(), 
-            SourceType = ImportSourceType.Csv, 
-            BatchSize = 10, 
-            ColumnMapping = "Not A Json" 
-        };
-
-        // Действие
-        var results = ValidationHelper.Validate(settings);
-
-        // Проверка
-        Assert.That(results.Any(r => r.ErrorMessage!.Contains("валидный JSON")), Is.True);
-    }
-
-    [Test]
     public void Create_BatchSizeTooLarge_Fail()
     {
         // Подготовка
         var settings = new ImportSettings 
         { 
-            Id = Guid.NewGuid(), 
             SourceType = ImportSourceType.Csv, 
-            BatchSize = 10001, 
-            ColumnMapping = "{}" 
+            Description = "Test settings",
+            StartPosition = 1,
+            BatchSize = 10001 
         };
 
         // Действие
@@ -472,10 +458,10 @@ public class ImportSettingsTests
         // Подготовка
         var settings = new ImportSettings 
         { 
-            Id = Guid.NewGuid(), 
             SourceType = ImportSourceType.Csv, 
-            BatchSize = -5, 
-            ColumnMapping = "{}" 
+            Description = "Test settings",
+            StartPosition = 1,
+            BatchSize = -5 
         };
 
         // Действие
@@ -483,31 +469,5 @@ public class ImportSettingsTests
 
         // Проверка
         Assert.That(results.Any(r => r.ErrorMessage!.Contains("Размер пакета")), Is.True);
-    }
-}
-
-[TestFixture]
-public class JournalEntryDtoTests
-{
-    [Test]
-    public void Create_DescriptionTooLong_Fail()
-    {
-        // Подготовка
-        var dto = new JournalEntryDto
-        {
-            Id = 1,
-            CheckNumber = 123,
-            Description = new string('A', 256), // 256 символов
-            OperationCode = 1,
-            TransactionDate = DateTimeOffset.Now,
-            Quantity = 1,
-            Amount = 100
-        };
-
-        // Действие
-        var results = ValidationHelper.Validate(dto);
-
-        // Проверка
-        Assert.That(results.Any(r => r.ErrorMessage!.Contains("255 символов")), Is.True);
     }
 }

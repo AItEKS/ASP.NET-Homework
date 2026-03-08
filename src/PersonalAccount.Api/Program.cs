@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using PersonalAccount.Console.Models;
-using PersonalAccount.Data;
+using DbUp;
+using System.Reflection;
 
 var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -9,7 +10,17 @@ var builder = new ConfigurationBuilder()
 var configuration = builder.Build();
 var options = configuration.Get<ApplicationOptions>() ?? throw new InvalidOperationException("Не удалось прочитать appsettings.json");
 
-var initializer = new DatabaseInitializer(options.ConnectionString);
+// Подключаем миграцию
+var upgrader =  DeployChanges.To
+            .PostgresqlDatabase(options.ConnectionString)
+            .WithScriptsEmbeddedInAssembly(Assembly.GetAssembly(typeof(PersonalAccount.Data.PersonalAccountDataMarker)))
+            .LogToConsole()
+            .Build();
 
-initializer.ExecuteSqlScript("schema.sql");
-initializer.ExecuteSqlScript("mock_data.sql");
+var result = upgrader.PerformUpgrade();
+if (!result.Successful)
+{
+    Console.ForegroundColor = ConsoleColor.Red;
+    Console.WriteLine(result.Error);
+    Console.ResetColor();
+}

@@ -2,7 +2,7 @@ using PersonalAccount.Domain.Core;
 using PersonalAccount.Domain.Models;
 using PersonalAccount.Domain.Dto.Reports;
 
-namespace PersonalAccount.Domain;
+namespace PersonalAccount.Domain.Services;
 
 public class ReportRepo : IReportRepository
 {

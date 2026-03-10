@@ -6,16 +6,29 @@ namespace PersonalAccount.Domain.Services;
 
 public class ReportRepo : IReportRepository
 {
+    private readonly HashSet<(int Month, int Day)> _holidays = new()
+    {
+        (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8),
+        (2, 23), (3, 8), (5, 1), (5, 9), (6, 12), (11, 4)
+    };
+
+    private bool IsHoliday(DateTimeOffset dateToCheck)
+    {
+        return _holidays.Contains((dateToCheck.Month, dateToCheck.Day));
+    }
+
     public List<RevenueReportDto> GetRevenueReport(IEnumerable<Models.Transaction> transactions, Guid organizationId)
     {
         var finOps = transactions.Where(t => t.OperationType != OperationType.StartWork && t.OperationType != OperationType.EndWork);
 
-        var grouped = finOps.GroupBy(t => t.OperationDate);
+        var grouped = finOps.GroupBy(t => t.OperationDate.Date);
 
         var result = new List<RevenueReportDto>();
 
         foreach (var dayGroup in grouped)
         {
+            var date = dayGroup.Key;
+
             var dto = new RevenueReportDto
             {
                 Period = dayGroup.Key,
@@ -30,7 +43,9 @@ public class ReportRepo : IReportRepository
 
                 DiscountAmount = 0,
                 
-                IsHoliday = dayGroup.Key.DayOfWeek == DayOfWeek.Saturday || dayGroup.Key.DayOfWeek == DayOfWeek.Sunday
+                IsHoliday = date.DayOfWeek == DayOfWeek.Saturday || 
+                            date.DayOfWeek == DayOfWeek.Sunday || 
+                            IsHoliday(date)
             };
             result.Add(dto);
         }

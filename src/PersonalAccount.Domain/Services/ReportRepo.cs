@@ -12,11 +12,22 @@ public class ReportRepo : IReportRepository
         (2, 23), (3, 8), (5, 1), (5, 9), (6, 12), (11, 4)
     };
 
+    /// <summary>
+    /// Функция для определения рабочего дня
+    /// </summary>
+    /// <param name="dateToCheck"></param>
+    /// <returns></returns>
     private bool IsHoliday(DateTimeOffset dateToCheck)
     {
         return _holidays.Contains((dateToCheck.Month, dateToCheck.Day));
     }
 
+    /// <summary>
+    /// Отчет о выручке
+    /// </summary>
+    /// <param name="transactions"></param>
+    /// <param name="organizationId"></param>
+    /// <returns></returns>
     public List<RevenueReportDto> GetRevenueReport(IEnumerable<Models.Transaction> transactions, Guid organizationId)
     {
         var finOps = transactions.Where(t => t.OperationType != OperationType.StartWork && t.OperationType != OperationType.EndWork);
@@ -31,7 +42,7 @@ public class ReportRepo : IReportRepository
 
             var dto = new RevenueReportDto
             {
-                Period = dayGroup.Key,
+                Period = date,
                 OrganizationId = organizationId,
                 
                 CashAmount = dayGroup.Where(t => t.OperationType == OperationType.Cash).Sum(t => t.Amount),
@@ -53,6 +64,12 @@ public class ReportRepo : IReportRepository
         return result.OrderBy(x => x.Period).ToList();
     }
 
+    /// <summary>
+    /// Отчет о продажах
+    /// </summary>
+    /// <param name="transactions"></param>
+    /// <param name="organizationId"></param>
+    /// <returns></returns>
     public List<SalesReportDto> GetSalesReport(IEnumerable<Models.Transaction> transactions, Guid organizationId)
     {
         var sales = transactions.Where(t => t.OperationType == OperationType.PluSales);
@@ -81,6 +98,12 @@ public class ReportRepo : IReportRepository
             .ToList();
     }
 
+    /// <summary>
+    /// Отчет о графике работы
+    /// </summary>
+    /// <param name="transactions"></param>
+    /// <param name="organizationId"></param>
+    /// <returns></returns>
     public List<WorkScheduleReportDto> GetWorkScheduleReport(IEnumerable<Models.Transaction> transactions, Guid organizationId)
     {
         var result = new List<WorkScheduleReportDto>();
@@ -90,33 +113,33 @@ public class ReportRepo : IReportRepository
             .OrderBy(t => t.OperationDate)
             .ToList();
 
-        var employeeGroups = workOps.GroupBy(t => t.Employee.Id);
-
-        foreach (var empGroup in employeeGroups)
+        var empSched = new Dictionary<Guid, WorkScheduleReportDto>();
+        
+        foreach (var workOp in workOps)
         {
-            var empName = empGroup.First().Employee.Name;
-            var empOps = empGroup.ToList();
-
-            for (int i = 0; i < empOps.Count; i++)
+            if (workOp.OperationType == OperationType.StartWork)
             {
-                var currentOp = empOps[i];
-
-                if (currentOp.OperationType == OperationType.StartWork)
+                if (empSched.ContainsKey(workOp.Employee.Id)) 
                 {
-                    var dto = new WorkScheduleReportDto
-                    {
-                        OrganizationId = organizationId,
-                        EmployeeCode = empGroup.Key,
-                        Name = empName,
-                        StartWork = currentOp.OperationDate
-                    };
+                    empSched.Remove(workOp.Employee.Id); 
+                }
+    
+                var dto = new WorkScheduleReportDto
+                {
+                    OrganizationId = organizationId,
+                    EmployeeCode = workOp.Employee.Id,
+                    Name = workOp.Employee.Name,
+                    StartWork = workOp.OperationDate
+                };
 
-                    if (i + 1 < empOps.Count && empOps[i + 1].OperationType == OperationType.EndWork)
-                    {
-                        dto.EndWork = empOps[i + 1].OperationDate;
-                        i++;
-                    }
-
+                empSched.Add(workOp.Employee.Id, dto);
+            } 
+            else if (workOp.OperationType == OperationType.EndWork)
+            {
+                if (empSched.TryGetValue(workOp.Employee.Id, out var dto))
+                {
+                    empSched.Remove(workOp.Employee.Id);
+                    dto.EndWork = workOp.OperationDate;
                     result.Add(dto);
                 }
             }

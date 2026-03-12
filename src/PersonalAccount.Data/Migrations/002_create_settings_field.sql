@@ -1,0 +1,1 @@
+ALTER TABLE "organization" add column import_settings jsonb;

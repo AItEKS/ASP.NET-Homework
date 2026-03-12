@@ -8,11 +8,6 @@ namespace PersonalAccount.Domain.Models;
 public class ImportSettings
 {
     /// <summary>
-    /// ID настройки
-    /// </summary>
-    public Guid Id { get; set; }
-
-    /// <summary>
     /// Тип источника
     /// </summary>
     public required ImportSourceType SourceType { get; set; }
@@ -32,9 +27,4 @@ public class ImportSettings
     /// </summary>
     [BatchSize]
     public int BatchSize { get; set; } = 100;
-
-    /// <summary>
-    /// ID организации
-    /// </summary>
-    public required Organization OrganizationID { get; set; }
 }

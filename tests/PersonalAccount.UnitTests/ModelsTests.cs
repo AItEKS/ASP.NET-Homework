@@ -374,7 +374,8 @@ public class TransactionTests
             Employee = GetValidEmployee(), 
             OperationType = OperationType.Cash, 
             Quantity = 1, 
-            Amount = 10, 
+            Amount = 10,
+            Discount = 10,
             OperationDate = DateTimeOffset.Now.AddDays(1) 
         };
 
@@ -397,6 +398,7 @@ public class TransactionTests
             OperationType = OperationType.Cash, 
             Quantity = 0, 
             Amount = 10, 
+            Discount = 10,
             OperationDate = DateTimeOffset.Now 
         };
 
@@ -419,6 +421,7 @@ public class TransactionTests
             OperationType = OperationType.Cash, 
             Quantity = 1, 
             Amount = -100, 
+            Discount= 10,
             OperationDate = DateTimeOffset.Now 
         };
 

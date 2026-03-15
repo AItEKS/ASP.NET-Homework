@@ -16,7 +16,8 @@ public enum OperationType
     Cash = 211,
     Visa = 216,
     Login = 301,
-    PluSales = 101
+    PluSales = 101,
+    Refund = 102
 }
 
 /// <summary>
@@ -36,6 +37,11 @@ public class Transaction
     /// ID транзакции
     /// </summary>
     public Guid Id { get; set; }
+
+    /// <summary>
+    /// ID организации
+    /// </summary>
+    public Guid OrganizationId { get; set; }
 
     /// <summary> 
     /// Номенклатура 
@@ -69,6 +75,11 @@ public class Transaction
     /// </summary>
     [PositiveMoney]
     public required decimal Amount { get; set; }
+
+    /// <summary>
+    /// Сумма скидки
+    /// </summary>
+    public required decimal Discount { get; set; }
 
     /// <summary>
     /// Тип операции (Продажа, Возврат, Списание)

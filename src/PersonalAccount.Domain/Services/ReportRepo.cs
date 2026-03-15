@@ -28,40 +28,107 @@ public class ReportRepo : IReportRepository
     /// <param name="transactions"></param>
     /// <param name="organizationId"></param>
     /// <returns></returns>
-    public List<RevenueReportDto> GetRevenueReport(IEnumerable<Models.Transaction> transactions, Guid organizationId)
+    public IEnumerable<RevenueReportDto> GetRevenueReport(IEnumerable<Models.Transaction> transactions, Guid organizationId)
     {
-        var finOps = transactions.Where(t => t.OperationType != OperationType.StartWork && t.OperationType != OperationType.EndWork);
+        // Все скидки
+        var calcDiscountTask =  Task.Run( () =>
+                                transactions
+                                .GroupBy(x => x.OperationDate.Date)
+                                .Select(x => new {
+                                    Key  = x.Key,
+                                    Value = x.Sum(t => t.Discount)
+                                })
+                                .ToDictionary(x => x.Key, x => x.Value));
 
-        var grouped = finOps.GroupBy(t => t.OperationDate.Date);
-
-        var result = new List<RevenueReportDto>();
-
-        foreach (var dayGroup in grouped)
+        // Рассчитать все банковские оплаты
+        var calcBankTask = Task.Run( () =>
         {
-            var date = dayGroup.Key;
+            var allDiscounts = transactions
+                            .Where(x => x.OperationType == OperationType.Visa)
+                            .GroupBy(x => x.OperationDate.Date)
+                            .Select(x => new {
+                                Key  = x.Key,
+                                Value = x.Sum(t => t.Discount)
+                            })
+                            .ToDictionary(x => x.Key, x => x.Value);
 
-            var dto = new RevenueReportDto
-            {
-                Period = date,
-                OrganizationId = organizationId,
-                
-                CashAmount = dayGroup.Where(t => t.OperationType == OperationType.Cash).Sum(t => t.Amount),
-                NonCashAmount = dayGroup.Where(t => t.OperationType == OperationType.Visa).Sum(t => t.Amount),
-                
-                OtherAmount = dayGroup.Where(t => 
-                    t.OperationType != OperationType.Cash && 
-                    t.OperationType != OperationType.Visa).Sum(t => t.Amount),
+            var allPayments = transactions
+                            .Where(x => x.OperationType == OperationType.Visa)
+                            .GroupBy(x => x.OperationDate.Date) 
+                            .Select(x => new {
+                                Key  = x.Key,
+                                Value = x.Sum(t => t.Amount * t.Quantity)
+                            })
+                            .ToDictionary(x => x.Key, x => x.Value);
 
-                DiscountAmount = 0,
-                
-                IsHoliday = date.DayOfWeek == DayOfWeek.Saturday || 
-                            date.DayOfWeek == DayOfWeek.Sunday || 
-                            IsHoliday(date)
-            };
-            result.Add(dto);
-        }
+            return allPayments.ToDictionary(
+                pair => pair.Key,
+                pair => pair.Value
+                        - (allDiscounts.ContainsKey(pair.Key) ?  allDiscounts[ pair.Key ] : 0)
+            );
+        });
 
-        return result.OrderBy(x => x.Period).ToList();
+        // Рассчитать все оплаты наличными
+        var calcCashTask = Task.Run( () =>
+        {
+            var allDiscounts = transactions
+                            .Where(x => x.OperationType == OperationType.Cash)
+                            .GroupBy(x => x.OperationDate.Date)
+                            .Select(x => new {
+                                Key  = x.Key,
+                                Value = x.Sum(t => t.Discount)
+                            })
+                            .ToDictionary(x => x.Key, x => x.Value);
+
+            var allPayments = transactions
+                            .Where(x => x.OperationType == OperationType.Cash)
+                            .GroupBy(x => x.OperationDate.Date) 
+                            .Select(x => new {
+                                Key  = x.Key,
+                                Value = x.Sum(t => t.Amount * t.Quantity)
+                            })
+                            .ToDictionary(x => x.Key, x => x.Value);
+
+
+            var allRefunds = transactions
+                            .Where(x => x.OperationType == OperationType.Refund)
+                            .GroupBy(x => x.OperationDate.Date)
+                            .Select(x => new {
+                                Key  = x.Key,
+                                Value = x.Sum(t => t.Amount * t.Quantity)
+                            })
+                            .ToDictionary(x => x.Key, x => x.Value);
+
+            return allPayments.ToDictionary(
+                pair => pair.Key,
+                pair => pair.Value 
+                        - (allDiscounts.ContainsKey(pair.Key) ?  allDiscounts[pair.Key]  : 0)
+                        - (allRefunds.ContainsKey(pair.Key) ? allRefunds[pair.Key] : 0)
+                
+            );                
+        });
+
+        // Ожидаем расчета
+        Task.WaitAll( calcBankTask, calcCashTask, calcDiscountTask);
+
+        // Получим список всех дат
+        var periods = calcBankTask.Result.Keys
+                    .Union( calcCashTask.Result.Keys )
+                    .Union( calcDiscountTask.Result.Keys )
+                    .Distinct()
+                    .ToList();
+
+        // Формируем результат
+        var result = periods.Select( x => new RevenueReportDto()
+        {
+            Period = x,
+            NonCashAmount = calcBankTask.Result.ContainsKey( x ) ? calcBankTask.Result[ x ] : 0,
+            CashAmount = calcCashTask.Result.ContainsKey( x ) ? calcCashTask.Result[ x ] : 0,
+            DiscountAmount = calcDiscountTask.Result.ContainsKey( x ) ? calcDiscountTask.Result[ x ] : 0,
+            OrganizationId = transactions.FirstOrDefault()?.OrganizationId ?? Guid.Empty
+        });
+
+        return result ;  
     }
 
     /// <summary>

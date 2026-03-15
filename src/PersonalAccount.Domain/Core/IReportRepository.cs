@@ -9,7 +9,7 @@ public interface IReportRepository
     /// <summary>
     /// Формирует отчет по выручке
     /// </summary>
-    List<RevenueReportDto> GetRevenueReport(IEnumerable<Transaction> transactions, Guid organizationId);
+    IEnumerable<RevenueReportDto> GetRevenueReport(IEnumerable<Transaction> transactions, Guid organizationId);
 
     /// <summary>
     /// Формирует отчет по продажам товаров

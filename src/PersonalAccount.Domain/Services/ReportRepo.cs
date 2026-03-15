@@ -132,6 +132,46 @@ public class ReportRepo : IReportRepository
     }
 
     /// <summary>
+    /// Старый метод (Синхронный, через один GroupBy)
+    /// </summary>
+    public IEnumerable<RevenueReportDto> GetRevenueReportSync(IEnumerable<Models.Transaction> transactions, Guid organizationId)
+    {
+        var grouped = transactions.GroupBy(t => t.OperationDate.Date);
+
+        var result = new List<RevenueReportDto>();
+
+        foreach (var dayGroup in grouped)
+        {
+            var totalDiscount = dayGroup.Sum(t => t.Discount);
+
+            var visaPayments = dayGroup.Where(t => t.OperationType == OperationType.Visa).Sum(t => t.Amount * t.Quantity);
+            var visaDiscounts = dayGroup.Where(t => t.OperationType == OperationType.Visa).Sum(t => t.Discount);
+            var nonCashAmount = visaPayments - visaDiscounts;
+
+            var cashPayments = dayGroup.Where(t => t.OperationType == OperationType.Cash).Sum(t => t.Amount * t.Quantity);
+            var cashDiscounts = dayGroup.Where(t => t.OperationType == OperationType.Cash).Sum(t => t.Discount);
+            
+            var refunds = dayGroup.Where(t => t.OperationType == OperationType.Refund).Sum(t => t.Amount * t.Quantity);
+            
+            var cashAmount = cashPayments - cashDiscounts - refunds;
+
+            var period = new DateTimeOffset(dayGroup.Key, TimeSpan.Zero);
+
+            result.Add(new RevenueReportDto
+            {
+                Period = period,
+                OrganizationId = organizationId, 
+                CashAmount = cashAmount,
+                NonCashAmount = nonCashAmount,
+                DiscountAmount = totalDiscount,
+                IsHoliday = IsHoliday(period)
+            });
+        }
+
+        return result.OrderBy(x => x.Period);
+    }
+
+    /// <summary>
     /// Отчет о продажах
     /// </summary>
     /// <param name="transactions"></param>

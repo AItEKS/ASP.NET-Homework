@@ -29,14 +29,34 @@ public class ReportsPerformanceProfiler
             
             var fakeData = FakeDataGenerator.GenerateTransactions(size, baseDate, orgId);
 
-            Measure($"GetRevenueReportSync ({size:N0} чеков)", () =>
+            // Measure($"GetRevenueReportSync ({size:N0} чеков)", () =>
+            // {
+            //     var report = _reportRepo.GetRevenueReportSync(fakeData, orgId).ToList();
+            // });
+
+            // Measure($"GetRevenueReport ({size:N0} чеков)", () =>
+            // {
+            //     var report = _reportRepo.GetRevenueReport(fakeData, orgId).ToList();
+            // });
+
+            Measure($"GetSalesReportSync ({size:N0} чеков)", () =>
             {
-                var report = _reportRepo.GetRevenueReportSync(fakeData, orgId).ToList();
+                var report = _reportRepo.GetSalesReport(fakeData, orgId);
             });
 
-            Measure($"GetRevenueReport ({size:N0} чеков)", () =>
+            Measure($"GetSalesReportAsync ({size:N0} чеков)", () =>
             {
-                var report = _reportRepo.GetRevenueReport(fakeData, orgId).ToList();
+                var report = _reportRepo.GetSalesReportAsync(fakeData, orgId);
+            });
+
+            Measure($"GetWorkScheduleReportSync ({size:N0} чеков)", () =>
+            {
+                var report = _reportRepo.GetWorkScheduleReport(fakeData, orgId);
+            });
+
+            Measure($"GetWorkScheduleReportAsync ({size:N0} чеков)", () =>
+            {
+                var report = _reportRepo.GetWorkScheduleReportAsync(fakeData, orgId);
             });
         }
     }

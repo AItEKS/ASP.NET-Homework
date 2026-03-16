@@ -80,14 +80,14 @@ public class ReportRepositoryTests
     }
 
     [Test]
-    public void GetSalesReport_ShouldGroupByNomenclatureAndIncludeCategories()
+    public void GetSalesReport_ShouldMapEachTransactionToReportRowCorrectly()
     {
         // Подготовка
         var date = DateTimeOffset.UtcNow;
         var transactions = new List<Transaction>
         {
-            CreateTransaction(OperationType.PluSales, 200, 2, date, 0),
-            CreateTransaction(OperationType.PluSales, 100, 1, date, 0),
+            CreateTransaction(OperationType.PluSales, 200, 2, date, 15), 
+            CreateTransaction(OperationType.PluSales, 100, 1, date.AddHours(1), 0),
             CreateTransaction(OperationType.Cash, 300, 1, date, 0)
         };
 
@@ -96,16 +96,21 @@ public class ReportRepositoryTests
 
         // Проверка
         Assert.That(report, Is.Not.Empty);
-        Assert.That(report.Count, Is.EqualTo(1));
+        Assert.That(report.Count, Is.EqualTo(2));
         
-        var row = report.First();
-        Assert.That(row.NomenclatureName, Is.EqualTo("Молоко Домик в Деревне 3.2%"));
-        Assert.That(row.NomenclatureCode, Is.EqualTo(_testProduct.Id));
-        Assert.That(row.GroupName, Is.EqualTo("Продукты питания"));
-        Assert.That(row.GroupCode, Is.EqualTo(_testProduct.Category.Id));
-        Assert.That(row.Quantity, Is.EqualTo(3));
-        Assert.That(row.Amount, Is.EqualTo(300));
-        Assert.That(row.DiscountAmount, Is.EqualTo(0));
+        var firstRow = report.First();
+        Assert.That(firstRow.NomenclatureName, Is.EqualTo("Молоко Домик в Деревне 3.2%"));
+        Assert.That(firstRow.NomenclatureCode, Is.EqualTo(_testProduct.Id));
+        Assert.That(firstRow.GroupName, Is.EqualTo("Продукты питания"));
+        Assert.That(firstRow.GroupCode, Is.EqualTo(_testProduct.Category.Id));
+        Assert.That(firstRow.Quantity, Is.EqualTo(2));
+        Assert.That(firstRow.Amount, Is.EqualTo(385));
+        Assert.That(firstRow.DiscountAmount, Is.EqualTo(15));
+        
+        var secondRow = report.Last();
+        Assert.That(secondRow.Quantity, Is.EqualTo(1));
+        Assert.That(secondRow.Amount, Is.EqualTo(100));
+        Assert.That(secondRow.DiscountAmount, Is.EqualTo(0));
     }
 
     [Test]

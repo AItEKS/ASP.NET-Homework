@@ -179,30 +179,41 @@ public class ReportRepo : IReportRepository
     /// <returns></returns>
     public List<SalesReportDto> GetSalesReport(IEnumerable<Models.Transaction> transactions, Guid organizationId)
     {
+        if (!transactions.Any())
+        {
+            return new List<SalesReportDto>();
+        }
+
         var sales = transactions.Where(t => t.OperationType == OperationType.PluSales);
 
-        return sales
-            .GroupBy(t => new { 
-                NomId = t.Nomenclature.Id, 
-                NomName = t.Nomenclature.Name, 
-                CatId = t.Nomenclature.Category.Id, 
-                CatName = t.Nomenclature.Category.Name 
-            })
-            .Select(g => new SalesReportDto
-            {
-                OrganizationId = organizationId,
-                NomenclatureCode = g.Key.NomId,
-                NomenclatureName = g.Key.NomName,
-                GroupCode = g.Key.CatId,
-                GroupName = g.Key.CatName,
-                
-                Quantity = g.Sum(t => t.Quantity),
-                Amount = g.Sum(t => t.Amount),
-                DiscountAmount = 0
-            })
-            .OrderBy(x => x.GroupName)
-            .ThenBy(x => x.NomenclatureName)
-            .ToList();
+        return sales.Select(t => new SalesReportDto
+        {
+            Period = t.OperationDate,
+            OrganizationId = organizationId,
+
+            NomenclatureCode = t.Nomenclature.Id,
+            NomenclatureName = t.Nomenclature.Name,
+
+            GroupCode = t.Nomenclature.Category.Id,
+            GroupName = t.Nomenclature.Category.Name,
+
+            Quantity = t.Quantity,
+
+            Amount = t.Amount * t.Quantity - t.Discount,
+            DiscountAmount = t.Discount
+        }).OrderBy(x => x.Period).ToList();
+    }
+    
+    /// <summary>
+    /// Асинхронный отчет о продажах
+    /// </summary>
+    /// <param name="transactions"></param>
+    /// <param name="organizationId"></param>
+    /// <param name="token"></param>
+    /// <returns></returns>
+    public async Task<List<SalesReportDto>> GetSalesReportAsync(IEnumerable<Models.Transaction> transactions, Guid organizationId, CancellationToken token = default)
+    {
+        return await Task.Run(() => GetSalesReport(transactions, organizationId), token);
     }
 
     /// <summary>
@@ -253,5 +264,16 @@ public class ReportRepo : IReportRepository
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Асинхронный отчет о графике работы
+    /// </summary>
+    /// <param name="transactions"></param>
+    /// <param name="organizationId"></param>
+    /// <returns></returns>
+    public async Task<List<WorkScheduleReportDto>> GetWorkScheduleReportAsync(IEnumerable<Models.Transaction> transactions, Guid organizationId, CancellationToken token = default)
+    {
+        return await Task.Run(() => GetWorkScheduleReport(transactions, organizationId), token);
     }
 }

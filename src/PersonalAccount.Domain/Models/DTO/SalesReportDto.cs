@@ -10,4 +10,5 @@ public class SalesReportDto
     public decimal Amount { get; set; }
     public decimal DiscountAmount { get; set; }
     public Guid OrganizationId { get; set; }
+    public DateTimeOffset Period { get; set; }
 }

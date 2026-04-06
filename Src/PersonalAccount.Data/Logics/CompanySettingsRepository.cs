@@ -49,7 +49,7 @@ public class CompanySettingsRepository : ICompanySettingsRepository
         var company = _context.Companies.FirstOrDefault(x => x.Id == companyId)
             ?? throw new InvalidDataException($"Не найдена организация по коду {companyId}!");
 
-        var text =     JsonSerializer.Serialize(setting);
+        var text = JsonSerializer.Serialize(setting);
         company.LoadOptions = text;
         await _context.SaveChangesAsync(token);
    }

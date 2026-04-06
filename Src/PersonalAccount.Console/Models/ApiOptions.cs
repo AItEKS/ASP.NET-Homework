@@ -1,9 +1,9 @@
-namespace PersonalAccount.Console.Models;
+namespace PersonalAccount.Api.Models;
 
 /// <summary>
-/// Настройки консольного приложения.
+/// Настройки Web API приложения.
 /// </summary>
-public class ConsoleOptions
+public class ApiOptions
 {
     /// <summary>
     /// Строка подключения MS SQL

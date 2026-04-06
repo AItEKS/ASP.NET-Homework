@@ -21,12 +21,11 @@ public static class RegistryExtension
     public static IServiceCollection RegistryPersonalAccountData
     (
         this IServiceCollection services,
-        IConfiguration configuration
+        string connectionString
     )
     {
         services.AddSingleton< ICompanySettingsRepository, CompanySettingsRepository>();
 
-        var connectionString = "User ID=admin;Password=123456;Host=localhost;Port=5433;Database=personal_account;";
         services.AddDbContext<PersonalAccountContext>(
             x => x.UseNpgsql( connectionString )
         );

@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PersonalAccount.Api.Models;
+using PersonalAccount.Api.Logics;
 using PersonalAccount.Data.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,6 +33,7 @@ if (!result.Successful)
 }
 
 builder.Services.RegistryPersonalAccountData(connectionString);
+builder.Services.RegistryPersonalAccountApi();
 
 builder.Services.AddControllers();
 builder.WebHost.UseUrls("http://0.0.0.0:8000");

@@ -50,6 +50,10 @@ public class JournalRepository : IClientRepository<JournalRowDto>
         where transtype in (387, 386, 211, 216, 101, 102)
         and transnumber >= {1}";
 
+    public JournalRepository()
+    {
+    }
+
     /// <summary>
     /// Получить выборку данных из журнала транзакций.
     /// </summary>

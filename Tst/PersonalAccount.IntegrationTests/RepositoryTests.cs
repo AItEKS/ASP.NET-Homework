@@ -2,6 +2,7 @@ using System;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
+using PersonalAccount.Api.Models;
 using PersonalAccount.Console.Logics;
 using PersonalAccount.Console.Models;
 
@@ -20,7 +21,7 @@ namespace PersonalAccount.IntegrationTests;
 public class RepositoryTests
 {
     // Настройки текущие
-    private ApplicationOptions _options;
+    private ApiOptions _options;
 
     public RepositoryTests()
     {
@@ -29,7 +30,7 @@ public class RepositoryTests
                     .AddJsonFile("appsettings.json");
 
         var configuration = builder.Build();
-        _options = configuration.Get<ApplicationOptions>()
+        _options = configuration.Get<ApiOptions>()
                         ?? throw new InvalidOperationException("Unabled loading appsettings.json!");
     }
 
@@ -45,7 +46,7 @@ public class RepositoryTests
     public async Task GetRows_JournalRepository_Fetch(int rows)
     {
         // Подготовка
-        using var connect = new SqlConnection(_options.ConnectionString);
+        using var connect = new SqlConnection(_options.MsSqlConnectionString);
         var repo = new JournalRepository();
 
         // Действие

@@ -32,6 +32,8 @@ public partial class PersonalAccountContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+    public DbSet<Models.JournalRow> JournalRows { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Category>(entity =>

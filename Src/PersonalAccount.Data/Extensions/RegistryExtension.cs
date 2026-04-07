@@ -24,7 +24,9 @@ public static class RegistryExtension
         string connectionString
     )
     {
-        services.AddSingleton< ICompanySettingsRepository, CompanySettingsRepository>();
+        services.AddScoped< ICompanySettingsRepository, CompanySettingsRepository>();
+
+        services.AddScoped<IJournalRowRepository, JournalRowRepository>();
 
         services.AddDbContext<PersonalAccountContext>(
             x => x.UseNpgsql( connectionString )

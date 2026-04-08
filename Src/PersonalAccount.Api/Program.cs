@@ -35,6 +35,9 @@ if (!result.Successful)
 builder.Services.RegistryPersonalAccountData(connectionString);
 builder.Services.RegistryPersonalAccountApi();
 
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 builder.Services.AddControllers();
 builder.WebHost.UseUrls("http://0.0.0.0:8000");
 
@@ -45,6 +48,9 @@ if (application.Environment.IsDevelopment())
 {
     application.UseDeveloperExceptionPage();
 }
+
+application.UseSwagger();
+application.UseSwaggerUI();
 
 application.UseRouting();
 application.MapControllers();

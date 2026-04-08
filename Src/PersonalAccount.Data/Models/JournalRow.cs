@@ -9,6 +9,7 @@ public class JournalRow
 {
     [Key]
     [Column("code")]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public long Code { get; set; }
 
     [Column("type_code")]

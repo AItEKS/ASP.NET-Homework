@@ -21,7 +21,7 @@ public class ConsoleOptions
     public required string MsSqlConnectionString { get; set; } = string.Empty;
 
     /// <summary>
-    /// Строка подключения PostgreSQL
+    /// Размер батча
     /// </summary>
-    public required string PostgreSqlConnectionString { get; set; } = string.Empty;
+    public int BatchSize { get; set; } = 1000;
 }

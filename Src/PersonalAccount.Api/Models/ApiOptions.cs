@@ -1,3 +1,5 @@
+using System;
+
 namespace PersonalAccount.Api.Models;
 
 /// <summary>
@@ -5,11 +7,6 @@ namespace PersonalAccount.Api.Models;
 /// </summary>
 public class ApiOptions
 {
-    /// <summary>
-    /// Строка подключения MS SQL
-    /// </summary>
-    public required string MsSqlConnectionString { get; set; } = string.Empty;
-
     /// <summary>
     /// Строка подключения PostgreSQL
     /// </summary>

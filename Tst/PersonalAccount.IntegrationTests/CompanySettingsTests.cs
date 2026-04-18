@@ -30,8 +30,13 @@ public class CompanySettingsTests
                     .AddJsonFile("appsettings.json");
 
         var configuration = builder.Build();
+
+        var connectionString = configuration.GetConnectionString("DefaultConnection") 
+            ?? configuration["ApiOptions:PostgreSqlConnectionString"] 
+            ?? throw new InvalidOperationException("Строка не найдена!");
+
         var services = new ServiceCollection()
-                     .RegistryPersonalAccountData( configuration );
+                     .RegistryPersonalAccountData( connectionString );
 
         _provider = services.BuildServiceProvider();
     }

@@ -4,23 +4,25 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using PersonalAccount.Api.Models;
+using PersonalAccount.Api.Logics;
 using PersonalAccount.Data.Extensions;
 
+var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = "User ID=admin;Password=123456;Host=localhost;Port=5433;Database=personal_account;";
+builder.Services.Configure<ApiOptions>(builder.Configuration.GetSection(nameof(ApiOptions)));
 
-// Настройки и построитель Web приложения
-var builder = WebApplication.CreateBuilder();
-var configuration = new ConfigurationBuilder()
-                    .AddJsonFile("appsettings.json")
-                    .Build();
+var apiOptions = builder.Configuration.GetSection(nameof(ApiOptions)).Get<ApiOptions>() 
+                 ?? throw new InvalidOperationException("Секция ApiOptions не найдена в конфиге!");
 
-// Миграции
-var upgrader =  DeployChanges.To
-            .PostgresqlDatabase(  connectionString )
-            .WithScriptsEmbeddedInAssembly(Assembly.GetAssembly(typeof(PersonalAccount.Data.PersonalAccountDataMarker)))
-            .LogToConsole()
-            .Build();
+var connectionString = apiOptions.PostgreSqlConnectionString;
+
+var upgrader = DeployChanges.To
+    .PostgresqlDatabase(connectionString)
+    .WithScriptsEmbeddedInAssembly(Assembly.GetAssembly(typeof(PersonalAccount.Data.PersonalAccountDataMarker)))
+    .LogToConsole()
+    .Build();
 
 var result = upgrader.PerformUpgrade();
 if (!result.Successful)
@@ -30,18 +32,26 @@ if (!result.Successful)
     Console.ResetColor();
 }
 
+builder.Services.RegistryPersonalAccountData(connectionString);
+builder.Services.RegistryPersonalAccountApi();
 
-// Подключение сервисов
-builder.Services
-        .RegistryPersonalAccountData( configuration );
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
-// Настройки Web
 builder.Services.AddControllers();
 builder.WebHost.UseUrls("http://0.0.0.0:8000");
 
 // Web приложение
 var application = builder.Build();
-application.UseDeveloperExceptionPage();
+
+if (application.Environment.IsDevelopment())
+{
+    application.UseDeveloperExceptionPage();
+}
+
+application.UseSwagger();
+application.UseSwaggerUI();
+
 application.UseRouting();
 application.MapControllers();
 

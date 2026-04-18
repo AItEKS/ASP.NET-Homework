@@ -1,5 +1,5 @@
 -- Создаем таблицы и индексы
-create table companies
+create table if not exists companies
 (
     id uuid not null primary key DEFAULT gen_random_uuid(),
     inn text,
@@ -8,14 +8,14 @@ create table companies
 
 create unique  index company_inn_ix on companies(inn);
 
-create table categories
+create table if not exists categories
 (
     id uuid not null primary key DEFAULT gen_random_uuid(),
     name text,
     company_id uuid
 );
 
-create table emploees
+create table if not exists emploees
 (
     id uuid not null primary key DEFAULT gen_random_uuid(),
     name text,
@@ -23,14 +23,14 @@ create table emploees
     company_id uuid
 );
 
-create table nomenclatures
+create table if not exists nomenclatures
 (
     id uuid not null primary key DEFAULT gen_random_uuid(),
     name text,
     category_id uuid
 );
 
-create table transactions
+create table if not exists transactions
 (
     id uuid not null primary key DEFAULT gen_random_uuid(),
     transaction_type int  not null,
@@ -43,14 +43,14 @@ create table transactions
     discount numeric(15,2)
 );
 
-create table users
+create table if not exists users
 (
     id uuid not null primary key DEFAULT gen_random_uuid(),
     name text,
     password text
 );
 
-create table links_user_company
+create table if not exists links_user_company
 (
     id uuid not null primary key DEFAULT gen_random_uuid(),
     user_id uuid,

@@ -1,9 +1,10 @@
+using System;
 using PersonalAccount.Domain.Core;
 
 namespace PersonalAccount.Domain.Models.Dto;
 
 /// <summary>
-/// Записть в журнале в клиенсткой программе.
+/// Запись в журнале в клиентской программе.
 /// </summary>
 public class JournalRowDto : IDto
 {
@@ -21,8 +22,7 @@ public class JournalRowDto : IDto
 
     /// <summary>
     /// Номер чека.
-    /// </summary>
-    [DataRow("receiptn")]
+    /// </summary>[DataRow("receiptn")]
     public long ReceiptNumber {get;set;}
 
     /// <summary>
@@ -45,8 +45,7 @@ public class JournalRowDto : IDto
 
     /// <summary>
     /// Дата время транзакции.
-    /// </summary>
-    [DataRow("dater")]
+    /// </summary>[DataRow("dater")]
     public DateTime Period {get;set;}
 
     /// <summary>
@@ -66,6 +65,23 @@ public class JournalRowDto : IDto
     /// </summary>
     [DataRow("discountamount")]
     public double Discount {get;set;}
+
+    /// <summary>
+    /// Имя сотрудника.
+    /// </summary>
+    public string? EmploeeName {get;set;}
+
+    /// <summary>
+    /// Название категории.
+    /// </summary>
+    [DataRow("category_name")]
+    public string? CategoryName {get;set;}
+
+    /// <summary>
+    /// Название продукта.
+    /// </summary>
+    [DataRow("nomenclature_name")]
+    public string? NomenclatureName {get;set;}
 
     public override string ToString()
         => $"{Period}:Транзакция - {Quantity * Price}";

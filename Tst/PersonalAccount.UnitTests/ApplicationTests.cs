@@ -140,7 +140,7 @@ public class ApplicationTests
         // Проверка
         Assert.That(result == false);
         Assert.That(transaction.IsError == true);
-        Console.WriteLine(transaction.ErrorText);
+        System.Console.WriteLine(transaction.ErrorText);
     }
 
     /// <summary>

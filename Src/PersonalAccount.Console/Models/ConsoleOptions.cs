@@ -10,10 +10,7 @@ public class ConsoleOptions
     /// </summary>
     public string ApiUrl { get; set; } = "http://localhost:8000/";
 
-    /// <summary>
-    /// ID организации, от имени которой работает эта касса
-    /// </summary>
-    public Guid CompanyId { get; set; }
+    public Guid BranchId { get; set; }
     
     /// <summary>
     /// Строка подключения MS SQL

@@ -1,33 +1,27 @@
 using System;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using PersonalAccount.Common.Core;
 using PersonalAccount.Data.Extensions;
-using PersonalAccount.Data.Logics;
 using PersonalAccount.Domain.Models;
 
 namespace PersonalAccount.IntegrationTests;
 
-
-/*
-Имя проверяемого метода
-Сценарий, в котором тестируется метод
-Ожидаемое поведение при вызове сценария
-*/
-
-
+[TestFixture]
 public class CompanySettingsTests
 {
+    private IServiceProvider _provider = null!;
 
-   // Работа с контейнером
-    private IServiceProvider _provider;
-
-    public CompanySettingsTests()
+    [OneTimeSetUp]
+    public void Setup()
     {
-       var builder = new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetCurrentDirectory())
-                    .AddJsonFile("appsettings.json");
+        var builder = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json");
 
         var configuration = builder.Build();
 
@@ -35,64 +29,49 @@ public class CompanySettingsTests
             ?? configuration["ApiOptions:PostgreSqlConnectionString"] 
             ?? throw new InvalidOperationException("Строка не найдена!");
 
-        var services = new ServiceCollection()
-                     .RegistryPersonalAccountData( connectionString );
+        var services = new ServiceCollection();
+        services.RegistryPersonalAccountData(connectionString);
 
         _provider = services.BuildServiceProvider();
     }
 
-
-    /// <summary>
-    /// Прверить работу метода Load класса <see cref="CompanySettingsRepository"/>
-    /// </summary>
-    /// <returns></returns>
     [Test]
     [TestCase("14e54725-0efc-42b8-a27d-a84f9a7257c5")]
     [Order(2)]
-    public async Task  Load_CompanySettingsRepository_NotThrow(string companyId)
+    public async Task Load_BranchSettingsRepository_NotThrow(string branchId)
     {
-        // Подготова
-        var repo = _provider.GetRequiredService<ICompanySettingsRepository>();
-        var company = new CompanyModel()
+        var repo = _provider.GetRequiredService<IBranchSettingsRepository>();
+        var branch = new BranchModel()
         {
-            Id = new Guid( companyId )
+            Name = "branch",
+            Id = new Guid(branchId)
         };
 
-        // Проверки и действие
-        Assert.DoesNotThrowAsync( async() =>
-        {
-            var result = await repo.LoadAsync(company, CancellationToken.None);
-            Assert.That(result is not null);
-        });
+        var result = await repo.LoadAsync(branch, CancellationToken.None);
+        Assert.That(result, Is.Not.Null);
     }
 
-    /// <summary>
-    /// Проверить работу метода Save класса <see cref="CompanySettingsRepository"/>
-    /// </summary>
-    /// <returns></returns>
     [Test]
     [TestCase("14e54725-0efc-42b8-a27d-a84f9a7257c5")]
     [Order(1)]
-    public async Task Save_CompanySettingsRepository_NotThrow(string companyId)
+    public async Task Save_BranchSettingsRepository_NotThrow(string branchId)
     {
-        // Подготовка
-        var repo = _provider.GetRequiredService<ICompanySettingsRepository>();
-        var company = new CompanyModel()
+        var repo = _provider.GetRequiredService<IBranchSettingsRepository>();
+        var branch = new BranchModel()
         {
-            Id = new Guid( companyId )
+            Name = "branch",
+            Id = new Guid(branchId)
         };
         var setting = new LoadingSettingsModel()
         {
-            Owner = company, BatchSize = 10, StartPosition = 0
+            Owner = branch, 
+            BatchSize = 10, 
+            StartPosition = 0
         };
 
-        // Действие и проверка
-        Assert.DoesNotThrowAsync(async () =>
-        {
-            await repo.SaveAsync(setting, CancellationToken.None);
-            var result = await repo.LoadAsync(company, CancellationToken.None);
+        await repo.SaveAsync(setting, CancellationToken.None);
+        var result = await repo.LoadAsync(branch, CancellationToken.None);
 
-            Assert.That(result.StartPosition == setting.StartPosition, Is.True);
-        });
+        Assert.That(result.StartPosition, Is.EqualTo(setting.StartPosition));
     }
 }

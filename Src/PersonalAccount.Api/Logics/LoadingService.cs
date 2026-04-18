@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using PersonalAccount.Common.Core;
-using PersonalAccount.Data.Logics;
 using PersonalAccount.Domain.Models;
 using PersonalAccount.Domain.Models.Dto;
 
@@ -12,27 +11,26 @@ namespace PersonalAccount.Api.Logics;
 
 public class LoadingService : ILoadingService
 {
-    private readonly ICompanySettingsRepository _settingReposity;
-    
+    private readonly IBranchSettingsRepository _settingRepository;
     private readonly IJournalRowRepository _journalRowRepository; 
   
     public LoadingService(
-        ICompanySettingsRepository settingsRepository, 
+        IBranchSettingsRepository settingsRepository, 
         IJournalRowRepository journalRowRepository)
     {
-        _settingReposity = settingsRepository;
+        _settingRepository = settingsRepository;
         _journalRowRepository = journalRowRepository;
     }
 
-    public bool Push(CompanyModel company, IEnumerable<JournalRowDto> transactions, CancellationToken token)
+    public bool Push(BranchModel branch, IEnumerable<JournalRowDto> transactions, CancellationToken token)
     {
-        var settings = _settingReposity.LoadAsync(company, token).Result
+        var settings = _settingRepository.LoadAsync(branch, token).Result
                         ?? new LoadingSettingsModel()
                         {
-                            Owner = company, StartPosition = 1, BatchSize = 1000
+                            Owner = branch, StartPosition = 1, BatchSize = 1000
                         };
 
-        settings.Owner = company;
+        settings.Owner = branch;
 
         var firstTransaction = transactions.FirstOrDefault();
         if(firstTransaction is null) return false;
@@ -48,12 +46,12 @@ public class LoadingService : ILoadingService
         
         settings.StartPosition = lastCode + 1; 
         
-        var task = Task.Run(() => _settingReposity.SaveAsync(settings, token), token);
+        var task = Task.Run(() => _settingRepository.SaveAsync(settings, token), token);
         Task.WaitAll(task);
     
         return true;
     }
 
-    public async Task<bool> PushAsync(CompanyModel company, IEnumerable<JournalRowDto> transactions, CancellationToken token)
-        => await Task.Run(() => Push(company, transactions, token), token);
+    public async Task<bool> PushAsync(BranchModel branch, IEnumerable<JournalRowDto> transactions, CancellationToken token)
+        => await Task.Run(() => Push(branch, transactions, token), token);
 }

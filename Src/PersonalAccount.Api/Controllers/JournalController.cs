@@ -25,12 +25,12 @@ public class JournalController : ControllerBase
     /// Метод для приема сырых данных (чеков) от клиента.
     /// URL: POST http://localhost:8000/api/journal/push/{companyId}
     /// </summary>
-    /// <param name="companyId">Уникальный ID организации (передается в URL)</param>
+    /// <param name="branchId">Уникальный ID организации (передается в URL)</param>
     /// <param name="transactions">Список транзакций (передается в теле запроса - JSON)</param>
     /// <param name="token">Токен отмены (если клиент разорвет соединение)</param>
-    [HttpPost("push/{companyId:guid}")]
+    [HttpPost("push/{branchId:guid}")]
     public async Task<IActionResult> PushTransactions(
-        [FromRoute] Guid companyId,
+        [FromRoute] Guid branchId,
         [FromBody] List<JournalRowDto> transactions,
         CancellationToken token)
     {
@@ -41,12 +41,8 @@ public class JournalController : ControllerBase
 
         try
         {
-            var company = new CompanyModel 
-            { 
-                Id = companyId 
-            };
-
-            bool isSuccess = await _loadingService.PushAsync(company, transactions, token);
+            var branch = new BranchModel { Id = branchId, Name = "Текущий филиал" };
+            bool isSuccess = await _loadingService.PushAsync(branch, transactions, token);
 
             if (isSuccess)
             {

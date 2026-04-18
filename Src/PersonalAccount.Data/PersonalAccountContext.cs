@@ -33,6 +33,8 @@ public partial class PersonalAccountContext : DbContext
     public virtual DbSet<User> Users { get; set; }
 
     public DbSet<Models.JournalRow> JournalRows { get; set; }
+    
+    public virtual DbSet<Branch> Branches { get; set; } 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -66,9 +68,6 @@ public partial class PersonalAccountContext : DbContext
                 .HasColumnName("id");
             entity.Property(e => e.Address).HasColumnName("address");
             entity.Property(e => e.Inn).HasColumnName("inn");
-            entity.Property(e => e.LoadOptions)
-                .HasColumnType("jsonb")
-                .HasColumnName("load_options");
         });
 
         modelBuilder.Entity<Emploee>(entity =>
@@ -191,6 +190,21 @@ public partial class PersonalAccountContext : DbContext
                 .HasColumnName("id");
             entity.Property(e => e.Name).HasColumnName("name");
             entity.Property(e => e.Password).HasColumnName("password");
+        });
+
+        modelBuilder.Entity<Branch>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("branches_pkey");
+            entity.ToTable("branches");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Name).HasColumnName("name");
+            entity.Property(e => e.CompanyId).HasColumnName("company_id");
+            entity.Property(e => e.LoadOptions).HasColumnType("jsonb").HasColumnName("load_options");
+
+            entity.HasOne(d => d.Company).WithMany(p => p.Branches)
+                .HasForeignKey(d => d.CompanyId)
+                .HasConstraintName("fk_branches_company");
         });
 
         OnModelCreatingPartial(modelBuilder);

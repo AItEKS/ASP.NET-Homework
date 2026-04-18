@@ -12,7 +12,7 @@ public class LoadingSettingsModel : DomainModel
     /// Организация владелец категории.
     /// </summary>
     [Required]
-    public CompanyModel Owner {get;set;} = null!;
+    public BranchModel Owner {get;set;} = null!;
 
     /// <summary>
     /// Описание настройки

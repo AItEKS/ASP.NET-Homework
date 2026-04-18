@@ -17,7 +17,7 @@ public interface ILoadingService
     /// <param name="token"></param>
     /// <returns></returns>
     public bool Push( 
-        CompanyModel company,
+        BranchModel branch,
         IEnumerable<JournalRowDto> transactions,
         CancellationToken token);
 
@@ -25,12 +25,12 @@ public interface ILoadingService
     /// <summary>
     /// Записать данные
     /// </summary>
-    /// <param name="company"></param>
+    /// <param name="branch"></param>
     /// <param name="transactions"></param>
     /// <param name="token"></param>
     /// <returns></returns>
     public Task<bool> PushAsync( 
-        CompanyModel company,
+        BranchModel branch,
         IEnumerable<JournalRowDto> transactions,
         CancellationToken token);    
 }

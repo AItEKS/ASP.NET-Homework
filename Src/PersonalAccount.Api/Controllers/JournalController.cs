@@ -59,4 +59,12 @@ public class JournalController : ControllerBase
             return StatusCode(500, new { Message = "Произошла внутренняя ошибка сервера при сохранении данных." });
         }
     }
+
+    [HttpGet("settings/{branchId:guid}")]
+    public async Task<IActionResult> GetSettings([FromRoute] Guid branchId, CancellationToken token)
+    {
+        var branch = new BranchModel { Id = branchId, Name = "" };
+        var settings = await _loadingService.GetSettingsAsync(branch, token); 
+        return Ok(settings);
+    }
 }

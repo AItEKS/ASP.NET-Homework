@@ -54,4 +54,9 @@ public class LoadingService : ILoadingService
 
     public async Task<bool> PushAsync(BranchModel branch, IEnumerable<JournalRowDto> transactions, CancellationToken token)
         => await Task.Run(() => Push(branch, transactions, token), token);
+
+    public async Task<LoadingSettingsModel> GetSettingsAsync(BranchModel branch, CancellationToken token)
+    {
+        return await _settingRepository.LoadAsync(branch, token);
+    }
 }

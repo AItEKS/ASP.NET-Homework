@@ -19,58 +19,65 @@ public class BackgroungPushService : BackgroundService
     private readonly ConsoleOptions _options;
     private readonly IClientRepository<JournalRowDto> _repo;
     private readonly ApiClient _apiClient;
-    
-    private long _currentStartPosition = 0;
+    private readonly IHttpClientFactory _httpClientFactory;
 
     public BackgroungPushService(
             IOptions<ConsoleOptions> options,
             IClientRepository<JournalRowDto> repo,
-            ApiClient apiClient)
+            ApiClient apiClient,
+            IHttpClientFactory httpClientFactory)
     {
         _options = options.Value;
         _repo = repo;
         _apiClient = apiClient;
+        _httpClientFactory = httpClientFactory;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        System.Console.WriteLine($"[ФОН] Запущен для филиала: {_options.BranchId}");
-
-        long currentPos = 0; 
+        System.Console.WriteLine($"[ФОН] Служба запущена. Филиал: {_options.BranchId}");
 
         while (!stoppingToken.IsCancellationRequested)
         {
             try
             {
+                var client = _httpClientFactory.CreateClient();
+                client.BaseAddress = new Uri(_options.ApiUrl);
+                
+                var settingsUrl = $"api/journal/settings/{_options.BranchId}";
+                var remoteSettings = await client.GetFromJsonAsync<LoadingSettingsModel>(settingsUrl, stoppingToken);
+
+                if (remoteSettings == null) 
+                {
+                    System.Console.WriteLine("! Не удалось получить настройки от сервера.");
+                    continue;
+                }
+
+                System.Console.WriteLine($"[ФОН] Сервер ждет данные с позиции: {remoteSettings.StartPosition}");
+
                 using var connect = new SqlConnection(_options.MsSqlConnectionString);
                 await connect.OpenAsync(stoppingToken);
 
-                var settings = new LoadingSettingsModel { 
-                    BatchSize = _options.BatchSize, 
-                    StartPosition = currentPos 
-                };
-
-                var transactions = (await _repo.GetRows(connect, settings)).ToList();
+                var transactions = (await _repo.GetRows(connect, remoteSettings)).ToList();
 
                 if (transactions.Any())
                 {
-                    System.Console.WriteLine($"[ФОН] Найдено {transactions.Count} чеков. Отправка...");
+                    System.Console.WriteLine($"[ФОН] Найдено {transactions.Count} новых чеков. Отправка...");
 
                     bool success = await _apiClient.SendTransactionsAsync(_options.BranchId, transactions);
-
+                    
                     if (success)
-                    {
-                        currentPos = transactions.Max(x => x.Code) + 1;
-                        System.Console.WriteLine($"[ФОН] Успешно. Следующий ID: {currentPos}");
-                    }
+                        System.Console.WriteLine($"[ФОН] Пакет успешно доставлен.");
+                }
+                else
+                {
+                    System.Console.WriteLine("[ФОН] Новых данных на кассе нет.");
                 }
             }
             catch (Exception ex)
             {
                 System.Console.WriteLine($"[ФОН ОШИБКА] {ex.Message}");
             }
-
-            await Task.Delay(10000, stoppingToken);
         }
     }
 }

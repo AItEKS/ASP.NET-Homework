@@ -32,5 +32,7 @@ public interface ILoadingService
     public Task<bool> PushAsync( 
         BranchModel branch,
         IEnumerable<JournalRowDto> transactions,
-        CancellationToken token);    
+        CancellationToken token);
+    
+    Task<LoadingSettingsModel> GetSettingsAsync(BranchModel branch, CancellationToken token);
 }

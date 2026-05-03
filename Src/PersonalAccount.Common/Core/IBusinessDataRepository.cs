@@ -24,6 +24,11 @@ public interface IBusinessDataRepository
     /// </summary>
     /// <param name="employees">Коллекция моделей сотрудников.</param>
     Task SaveEmployeesAsync(IEnumerable<EmploeeModel> employees, CancellationToken token);
+    
+    /// <summary>
+    /// Подготавливает базу данных к вставке новой пачки транзакций.
+    /// </summary>
+    Task PrepareTransactionsAsync(IEnumerable<TransactionModel> transactions, CancellationToken token);
 
     /// <summary>
     /// Выполняет массовое сохранение транзакций (чеков) в основную бизнес-таблицу.

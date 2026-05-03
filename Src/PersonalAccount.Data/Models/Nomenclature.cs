@@ -14,4 +14,6 @@ public partial class Nomenclature
     public virtual Category? Category { get; set; }
 
     public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
+
+    public long Code { get; set; }
 }

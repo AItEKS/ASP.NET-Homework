@@ -33,6 +33,10 @@ public static class RegistryExtension
             x => x.UseNpgsql( options.ConnectionString )
         );
         services.AddSingleton( x => options );
+        services.AddScoped<IEntityExtractor, EntityExtractor>();
+        services.AddScoped<IBusinessDataRepository, BusinessDataRepository>();
+        services.AddScoped<IDataTransformerService, DataTransformerService>();
+        services.AddScoped<IJournalDataSource, JournalRowDataSource>();
 
         return services;
     }

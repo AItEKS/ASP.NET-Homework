@@ -52,6 +52,7 @@ var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
 builder.Services
         .RegistryPersonalAccountData( configuration )
         .RegistryPersonalAccountApi (configuration )
+        .AddHostedService<PersonalAccount.Api.Logics.JournalProcessingBackgroundService>()
         .AddSwaggerGen(x =>
         {
             x.IncludeXmlComments(xmlPath);

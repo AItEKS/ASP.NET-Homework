@@ -14,4 +14,6 @@ public partial class Category
     public virtual Company? Company { get; set; }
 
     public virtual ICollection<Nomenclature> Nomenclatures { get; set; } = new List<Nomenclature>();
+
+    public long Code { get; set; }
 }

@@ -19,4 +19,11 @@ public class NomenclatureModel : DomainModel
     /// </summary>
     [Required]
     public CategoryModel Category {get;set;} = null!;
+
+    /// <summary>
+    /// Внешний код номенклатуры (из клиентской базы MS SQL).
+    /// Используется для синхронизации.
+    /// </summary>
+    [Required]
+    public long Code { get; set; }
 }

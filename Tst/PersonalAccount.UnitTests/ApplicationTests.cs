@@ -151,6 +151,7 @@ public class ApplicationTests
           // Подготовка
         var transaction = new TransactionModel()
         {
+            Id = Guid.NewGuid(),
             Emploee = new EmploeeModel() 
             { 
                 Name = "test" , 

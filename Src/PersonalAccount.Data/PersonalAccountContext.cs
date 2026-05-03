@@ -15,7 +15,10 @@ public partial class PersonalAccountContext : DbContext
         : base(options)
     {
     }
+    public virtual DbSet<Branch> Branches { get; set; }
 
+    public virtual DbSet<Journal> JournalRows { get; set; }
+    
     public virtual DbSet<Category> Categories { get; set; }
 
     public virtual DbSet<Company> Companies { get; set; }
@@ -191,6 +194,27 @@ public partial class PersonalAccountContext : DbContext
                 .HasColumnName("id");
             entity.Property(e => e.Name).HasColumnName("name");
             entity.Property(e => e.Password).HasColumnName("password");
+        });
+
+        modelBuilder.Entity<Journal>(entity =>
+        {
+            entity.HasKey(e => e.Transnumber).HasName("journal_rows_pkey");
+            entity.ToTable("journal_rows");
+            entity.Property(e => e.Transnumber).HasColumnName("code").ValueGeneratedNever();
+            entity.Property(e => e.Transtype).HasColumnName("type_code");
+            entity.Property(e => e.Receiptn).HasColumnName("receipt_number");
+            entity.Property(e => e.Productid).HasColumnName("product_code");
+            entity.Property(e => e.Categoryid).HasColumnName("category_code");
+            entity.Property(e => e.Emploeeid).HasColumnName("emploee_code");
+            entity.Property(e => e.EmploeeName).HasColumnName("emploee_name");
+            entity.Property(e => e.CategoryName).HasColumnName("category_name");
+            entity.Property(e => e.ProductName).HasColumnName("nomenclature_name");
+            entity.Property(e => e.Dater).HasColumnName("period");
+            entity.Property(e => e.Quantity).HasColumnName("quantity");
+            entity.Property(e => e.Price).HasColumnName("price");
+            entity.Property(e => e.Discountamount).HasColumnName("discount");
+            entity.Ignore(e => e.CompanyId);
+            entity.Ignore(e => e.BranchId);
         });
 
         OnModelCreatingPartial(modelBuilder);

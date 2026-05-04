@@ -94,8 +94,6 @@ public class JournalProcessingBackgroundService : BackgroundService
             {
                 Console.WriteLine($"[ETL ОШИБКА] {ex.Message}");
             }
-
-            await Task.Delay(5000, stoppingToken);
         }
     }
 }

@@ -9,10 +9,10 @@ namespace PersonalAccount.Domain.Models;
 public class LoadingSettingsModel : DomainModel
 {
     /// <summary>
-    /// Организация владелец категории.
+    /// ОФилиал-владелец настроек.
     /// </summary>
     [Required]
-    public CompanyModel Owner {get;set;} = null!;
+    public BranchModel Owner {get;set;} = null!;
 
     /// <summary>
     /// Описание настройки

@@ -37,21 +37,26 @@ public partial class PersonalAccountContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Category>(entity =>
+        modelBuilder.Entity<Branch>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("categories_pkey");
-
-            entity.ToTable("categories");
+            entity.HasKey(e => e.Id).HasName("branches_pkey");
+            
+            entity.ToTable("branches"); 
 
             entity.Property(e => e.Id)
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("id");
+
             entity.Property(e => e.CompanyId).HasColumnName("company_id");
             entity.Property(e => e.Name).HasColumnName("name");
+            
+            entity.Property(e => e.LoadOptions)
+                .HasColumnType("jsonb")
+                .HasColumnName("load_options");
 
-            entity.HasOne(d => d.Company).WithMany(p => p.Categories)
+            entity.HasOne(d => d.Company).WithMany(p => p.Branches)
                 .HasForeignKey(d => d.CompanyId)
-                .HasConstraintName("categories_company_id_fk");
+                .HasConstraintName("fk_branches_company");
         });
 
         modelBuilder.Entity<Company>(entity =>

@@ -7,28 +7,21 @@ using PersonalAccount.Domain.Models.Dto;
 
 namespace PersonalAccount.Console.Extensions;
 
-/// <summary>
-/// Регистрация сервисов модуля в DI
-/// </summary>
 public static class RegistryExtension
 {
-    /// <summary>
-    /// Зарегистрировать в контейнере сервисы модуля PersonalAccount.Data
-    /// </summary>
-    /// <param name="services"></param>
-    /// <param name="configuration"></param>
-    /// <returns></returns>
-    public static IServiceCollection RegistryPersonalAccountConsole
-    (
-        this IServiceCollection services,
-        IConfiguration configuration
-    )
+    public static IServiceCollection RegistryPersonalAccountConsole(this IServiceCollection services, IConfiguration configuration)
     {
         var options = configuration.GetSection(nameof(ConsoleOptions)).Get<ConsoleOptions>()
-                        ?? throw new InvalidOperationException($"Невозможно загрузить настройки из секции {nameof(ConsoleOptions)}!");
+                        ?? throw new InvalidOperationException($"Невозможно загрузить настройки!");
 
-        services.AddScoped<  IClientRepository<JournalRowDto> , JournalReadRepository >();
-        services.AddSingleton( x => options );
+        services.Configure<ConsoleOptions>(configuration.GetSection("ConsoleOptions"));
+        services.AddScoped<IClientRepository<JournalRowDto>, JournalReadRepository>();
+        
+        services.AddHttpClient<ApiClient>(client => 
+        {
+            client.BaseAddress = new Uri(options.ServerHost);
+        });
+
         services.AddHostedService<BackgroungPushService>();
         
         return services;

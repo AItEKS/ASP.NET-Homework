@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
-using PersonalAccount.Data.Extensions;
+using PersonalAccount.Data.Logics;
 using PersonalAccount.Data.Models;
 using PersonalAccount.Domain.Models.Dto;
 

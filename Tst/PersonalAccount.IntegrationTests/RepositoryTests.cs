@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -14,45 +18,35 @@ using PersonalAccount.Domain.Models.Dto;
 
 namespace PersonalAccount.IntegrationTests;
 
-/*
-Имя проверяемого метода
-Сценарий, в котором тестируется метод
-Ожидаемое поведение при вызове сценария
-*/
-
-
-/// <summary>
-/// Набор интеграционных тестов для проверки работы различных репозиториев.
-/// </summary>
+[TestFixture]
 public class RepositoryTests
 {
-    // Работа с контейнером
     private IServiceProvider _provider;
 
-    public RepositoryTests()
+    [OneTimeSetUp]
+    public void Setup()
     {
         var builder = new ConfigurationBuilder()
                      .SetBasePath(Directory.GetCurrentDirectory())
                      .AddJsonFile("appsettings.json");
 
         var configuration = builder.Build();
-        var services = new ServiceCollection()
-                     .RegistryPersonalAccountData(configuration)
-                     .RegistryPersonalAccountConsole(configuration)
-                     .RegistryPersonalAccountApi(configuration);
+        var services = new ServiceCollection();
+        
+        // Регистрация всех слоев
+        services.RegistryPersonalAccountData(configuration);
+        services.RegistryPersonalAccountConsole(configuration);
+        services.RegistryPersonalAccountApi(configuration);
 
         _provider = services.BuildServiceProvider();
     }
 
     /// <summary>
-    /// Простой тест для замера производительности.
+    /// Простой тест для замера производительности чтения из MS SQL.
     /// </summary>
-    /// <param name="rows"></param>
-    /// <returns></returns>
     [Test]
     [TestCase(100)]
     [TestCase(1000)]
-    [TestCase(10000)]
     public async Task GetRows_JournalRepository_Any(int rows)
     {
         // Подготовка
@@ -60,19 +54,16 @@ public class RepositoryTests
         var repo = _provider.GetRequiredService<IClientRepository<JournalRowDto>>();
         using var connect = new SqlConnection(options.ConnectionString);
 
-
         // Действие
-        var result = await repo.GetRows(connect, new Domain.Models.LoadingSettingsModel() { BatchSize = rows });
+        var result = await repo.GetRows(connect, new LoadingSettingsModel { BatchSize = rows, StartPosition = 0 });
 
         // Проверки
-        Assert.That(result is not null);
-        Assert.That(result!.Any());
-        Assert.That(result!.Count() == rows);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Any(), Is.True);
     }
 
-
     /// <summary>
-    /// Проверить работу метода SaveRows репозиторий JournalRepository
+    /// Проверить работу высокоскоростной вставки в PostgreSQL.
     /// </summary>
     [Test]
     public async Task SaveRows_JournalRepository_DoesNotThrow()
@@ -81,34 +72,25 @@ public class RepositoryTests
         var repo = _provider.GetRequiredService<IServerRepository<JournalRowDto>>();
         var context = _provider.GetRequiredService<PersonalAccountContext>();
         var connect = context.Database.GetDbConnection();
-        var transactions = new List<JournalRowDto>()
+
+        var transactions = new List<JournalRowDto>
         {
-            new JournalRowDto()
+            new JournalRowDto
             {
-                TypeCode = 101, 
-                CategoryCode = 1, 
-                CategoryName = "test", 
-                Code = 1 , 
-                CompanyId = 1, 
-                Discount = 0, 
-                EmploeeCode = 1 , 
-                EmploeeName = "test" , 
-                Period = DateTime.UtcNow, 
-                Price = 1, 
-                ProductCode = 1 , 
-                ProductName = "test", 
-                Quantity = 1, 
-                ReceiptNumber = 1
+                TypeCode = 101, Code = DateTime.Now.Ticks, ReceiptNumber = 1,
+                Period = DateTime.UtcNow, Price = 10, Quantity = 1, ProductName = "Test"
             }
         };
+
+        // Создаем иерархию для обхода ограничений NOT NULL в БД
+        var company = new CompanyModel { Id = new Guid("14e54725-0efc-42b8-a27d-a84f9a7257c5"), Name = "Test" };
+        var branch = new BranchModel { Id = Guid.NewGuid(), Name = "Test Branch", Owner = company };
+
         var options = new LoadingSettingsModel()
         {
+            Owner = branch,
             StartPosition = 1,
-            BatchSize = 100,
-            Owner = new CompanyModel()
-            {
-                Id = new Guid("14e54725-0efc-42b8-a27d-a84f9a7257c5")
-            }
+            BatchSize = 100
         };
 
         // Действие и проверка

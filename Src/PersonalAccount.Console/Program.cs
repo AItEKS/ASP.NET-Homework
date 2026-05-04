@@ -10,6 +10,7 @@ CurrentApplication.ShowLogo();
 // Логгер
 Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Information()
+                .WriteTo.Console()
                 .WriteTo.File(
                     path: "PersonalAccountConsole_.log",
                     rollingInterval: RollingInterval.Day,
@@ -23,12 +24,12 @@ var configuration = new ConfigurationBuilder()
                     .Build();
 
 // Создали хост
-var host = Host.CreateDefaultBuilder()
-          .ConfigureServices ( (context, services) =>
+var hostBuilder = Host.CreateDefaultBuilder()
+          .ConfigureServices((context, services) =>
           {
-            services.RegistryPersonalAccountConsole( configuration );
+            services.RegistryPersonalAccountConsole(configuration);
           });
 
-await host.StartAsync();          
+var host = hostBuilder.Build(); 
 
-          
+await host.RunAsync();

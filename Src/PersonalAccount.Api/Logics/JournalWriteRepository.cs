@@ -8,12 +8,8 @@ using NpgsqlTypes;
 
 namespace PersonalAccount.Api.Logics;
 
-/// <summary>
-/// Реализация интерфейса <see cref="IServerRepository<T>>"/>
-/// </summary>
 public class JournalWriteRepository : IServerRepository<JournalRowDto>
 {
-    // Шаблон SQL запроса
     private const string _sql = @"
         COPY journal (
             transnumber,
@@ -29,89 +25,95 @@ public class JournalWriteRepository : IServerRepository<JournalRowDto>
             quantity,
             price,
             discountamount,
-            company_id 
+            company_id,
+            branch_id 
         ) 
         FROM STDIN (FORMAT BINARY)";
 
-    /// <inheritdoc/>
     public async Task<LoadingSettingsModel?> SaveRows(DbConnection connection, IEnumerable<JournalRowDto> transactions, LoadingSettingsModel options)
     {
         ArgumentNullException.ThrowIfNull(connection);
+        
+        if (options.Owner == null || options.Owner.Owner.Id == null)
+            throw new InvalidDataException("Невозможно сохранить данные: отсутствует информация о филиале или организации-владельце!");
+
         try
         {
-            if(connection.State == System.Data.ConnectionState.Closed)
+            if (connection.State == System.Data.ConnectionState.Closed)
                 await connection.OpenAsync();
 
-            // Открываем потоковую запись данных
-            using var writer = (connection as NpgsqlConnection)!.BeginBinaryImport( _sql );
-            foreach( var transaction in transactions ) 
+            using var writer = (connection as NpgsqlConnection)!.BeginBinaryImport(_sql);
+            
+            foreach (var transaction in transactions) 
             {
                 writer.StartRow();
              
-                // transnumber
-                writer.Write( transaction.Code , NpgsqlDbType.Bigint );
-                // transtype
-                writer.Write( transaction.TypeCode , NpgsqlDbType.Bigint );
-                // receiptn
-                writer.Write( transaction.ReceiptNumber , NpgsqlDbType.Bigint );
+                // 1. transnumber
+                writer.Write(transaction.Code, NpgsqlDbType.Bigint);
+                // 2. transtype
+                writer.Write(transaction.TypeCode, NpgsqlDbType.Bigint);
+                // 3. receiptn
+                writer.Write(transaction.ReceiptNumber, NpgsqlDbType.Bigint);
 
-                // productid
+                // 4. productid
                 if (transaction.ProductCode.HasValue)
-                    writer.Write( transaction.ProductCode , NpgsqlDbType.Bigint); 
+                    writer.Write(transaction.ProductCode.Value, NpgsqlDbType.Bigint); 
                 else 
                     writer.WriteNull(); 
 
-                // product_name
-                if (!string.IsNullOrEmpty(transaction.ProductName) )
-                    writer.Write( transaction.ProductName , NpgsqlDbType.Text );
+                // 5. product_name
+                if (!string.IsNullOrEmpty(transaction.ProductName))
+                    writer.Write(transaction.ProductName, NpgsqlDbType.Text);
                 else    
                     writer.WriteNull(); 
 
-                // categoryid
-                if (transaction.CategoryCode .HasValue)
-                    writer.Write( transaction.CategoryCode , NpgsqlDbType.Bigint );
+                // 6. categoryid
+                if (transaction.CategoryCode.HasValue)
+                    writer.Write(transaction.CategoryCode.Value, NpgsqlDbType.Bigint);
                 else
                     writer.WriteNull();
 
-                // category_name
-                if (!string.IsNullOrEmpty(transaction.CategoryName ))
-                    writer.Write( transaction.CategoryName , NpgsqlDbType.Text );
+                // 7. category_name
+                if (!string.IsNullOrEmpty(transaction.CategoryName))
+                    writer.Write(transaction.CategoryName, NpgsqlDbType.Text);
                 else
                    writer.WriteNull();
 
-                // emploeeid
-                if (transaction.EmploeeCode .HasValue)
-                    writer.Write( transaction.EmploeeCode , NpgsqlDbType.Bigint );
+                // 8. emploeeid
+                if (transaction.EmploeeCode.HasValue)
+                    writer.Write(transaction.EmploeeCode.Value, NpgsqlDbType.Bigint);
                 else
                     writer.WriteNull();
 
-                // emploee_name
+                // 9. emploee_name
                 if (!string.IsNullOrEmpty(transaction.EmploeeName))
-                    writer.Write( transaction.EmploeeName , NpgsqlDbType.Text );
+                    writer.Write(transaction.EmploeeName, NpgsqlDbType.Text);
                 else
                     writer.WriteNull();
 
-                // dater
+                // 10. dater (timestamp with time zone)
                 writer.Write(DateTime.SpecifyKind(transaction.Period, DateTimeKind.Utc), NpgsqlDbType.TimestampTz);
-                // quantity
-                writer.Write( transaction.Quantity , NpgsqlDbType.Double );
-                // price
-                writer.Write( transaction.Price , NpgsqlDbType.Double );
-                // discountamount
-                writer.Write( transaction.Discount , NpgsqlDbType.Double );
-                // company_id
-                writer.Write( options.Owner.Id, NpgsqlDbType.Uuid );
+                
+                // 11-13. Финансовые данные
+                writer.Write(transaction.Quantity, NpgsqlDbType.Double);
+                writer.Write(transaction.Price, NpgsqlDbType.Double);
+                writer.Write(transaction.Discount, NpgsqlDbType.Double);
+
+                // 14. company_id (Берем из Owner нашего филиала)
+                writer.Write(options.Owner.Owner.Id, NpgsqlDbType.Uuid);
+
+                // 15. branch_id (Это ID самого филиала - владельца настроек)
+                writer.Write(options.Owner.Id, NpgsqlDbType.Uuid);
             }
 
     		writer.Complete();
 
-            // Формируем ответный вариант настроек
             options.StartPosition = transactions.Max(x => x.Code);
             return options;
         }
         catch(Exception ex)
         {
-            throw new InvalidDataException($"Невозможно выполнить вставку данных!\n{ex.Message}{ex.InnerException?.Message}");
+            throw new InvalidDataException($"Ошибка Binary COPY в PostgreSQL: {ex.Message}");
         }
         finally
         {

@@ -37,7 +37,8 @@ public static class RegistryExtension
         services.AddScoped<IBusinessDataRepository, BusinessDataRepository>();
         services.AddScoped<IDataTransformerService, DataTransformerService>();
         services.AddScoped<IJournalDataSource, JournalRowDataSource>();
-
+        services.AddScoped<IBranchSettingsRepository, BranchSettingsRepository>();
+        
         return services;
     }
 }

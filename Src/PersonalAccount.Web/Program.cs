@@ -2,6 +2,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddSingleton<PersonalAccount.Web.Services.IBranchSettingsService,
+    PersonalAccount.Web.Services.InMemoryBranchSettingsService>();
 
 var app = builder.Build();
 

@@ -1,59 +1,70 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using PersonalAccount.Domain.Models;
 using PersonalAccount.Web.Models;
+using PersonalAccount.Web.Services;
 
 namespace PersonalAccount.Web.Controllers;
 
 public class HomeController : Controller
 {
-    /// <summary>
-    /// Настройки
-    /// </summary>
-    /// <returns></returns>
-    public IActionResult Index()
+    private readonly IBranchSettingsService _service;
+
+    public HomeController(IBranchSettingsService service)
     {
-        return View(new BranchSettingsModel() { Branches = new List<BranchModel>()});
+        _service = service;
     }
 
     /// <summary>
-    /// Продажи
+    /// Настройки. При выборе филиала загружаются его настройки.
     /// </summary>
-    /// <returns></returns>
-    public IActionResult SallingReport()
+    public IActionResult Index(Guid? branchId)
     {
-        return View();
+        var branches = _service.GetBranches().ToList();
+        var selected = branchId.HasValue ? _service.GetBranch(branchId.Value) : branches.FirstOrDefault();
+
+        return View(new BranchSettingsModel
+        {
+            Branches = branches,
+            Branch = selected!
+        });
     }
 
-    /// <summary>
-    /// Выручка
-    /// </summary>
-    /// <returns></returns>
-    public IActionResult RevenueReport()
-    {
-        return View();
-    }
+    public IActionResult SallingReport() => View();
+    public IActionResult RevenueReport() => View();
+    public IActionResult WorkScheduleReport() => View();
 
     /// <summary>
-    /// График работы
+    /// Сохранить настройки выбранного филиала.
     /// </summary>
-    /// <returns></returns>
-    public IActionResult WorkScheduleReport()
-    {
-        return View();
-    }
-
-    /// <summary>
-    /// Сохранить настройки
-    /// </summary>
-    /// <returns></returns>
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public IActionResult SaveSettings(BranchSettingsModel model)
     {
-        var validate = model.Branch.Validate();
-        if(!validate)
-            throw new InvalidDataException($"Некорректно указаны параметры!\n{model.Branch.ErrorText}");
+        var branches = _service.GetBranches().ToList();
+        model.Branches = branches;
 
-        return View(model);
+        var stored = _service.GetBranch(model.Branch.Id);
+        if (stored is null)
+        {
+            model.ErrorText = "Филиал не найден.";
+            return View(nameof(Index), model);
+        }
+
+        // Восстанавливаем связи (не приходят с формы), затем валидируем по правилам домена.
+        model.Branch.Name = stored.Name;
+        model.Branch.Owner = stored.Owner;
+        model.Branch.Settings.Branch = stored.Settings.Branch;
+        model.Branch.Settings.Id = stored.Settings.Id;
+
+        if (!model.Branch.Validate())
+        {
+            model.ErrorText = model.Branch.ErrorText;
+            return View(nameof(Index), model);
+        }
+
+        _service.SaveSettings(model.Branch.Id, model.Branch.Settings);
+        model.SuccessText = "Настройки успешно сохранены.";
+        model.Branch = _service.GetBranch(model.Branch.Id)!;
+        return View(nameof(Index), model);
     }
 }

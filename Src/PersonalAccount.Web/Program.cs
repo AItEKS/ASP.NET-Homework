@@ -1,9 +1,18 @@
+using Microsoft.EntityFrameworkCore;
+using PersonalAccount.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddSingleton<PersonalAccount.Web.Services.IBranchSettingsService,
-    PersonalAccount.Web.Services.InMemoryBranchSettingsService>();
+
+// Регистрация DbContext
+builder.Services.AddDbContext<PersonalAccountContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Регистрация сервиса работы с филиалами
+builder.Services.AddScoped<PersonalAccount.Web.Services.IBranchSettingsService,
+    PersonalAccount.Web.Services.DbBranchSettingsService>();
 
 var app = builder.Build();
 

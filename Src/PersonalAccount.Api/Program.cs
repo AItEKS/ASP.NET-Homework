@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PersonalAccount.Api.Extensions;
+using PersonalAccount.Api.Logics;
 using PersonalAccount.Common.Models;
 using PersonalAccount.Data.Extensions;
 using Serilog;
@@ -63,11 +64,14 @@ builder.WebHost.UseUrls("http://0.0.0.0:8000");
 
 // Web приложение
 var application = builder.Build();
+
 application.UseDeveloperExceptionPage();
 application.UseRouting();
 application.MapControllers();
 application.UseSwagger();
 application.UseSwaggerUI();
+
+application.UseMiddleware<ExceptionMiddleware>();
 
 // Запуск
 Log.Information("Приложение Personal Account запущено успешно!");

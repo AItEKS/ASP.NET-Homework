@@ -1,5 +1,6 @@
 using PersonalAccount.Data.Extensions;
 using PersonalAccount.Web.Extensions;
+using PersonalAccount.Web.Logics;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,7 +25,11 @@ builder.Services
     .RegistryPersonalAccountWeb(configuration);
 
 // Регистрируем контроллеры    
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(
+    options =>
+    {
+        options.Filters.Add<CustomExceptionFilter>();
+    });
 
 var app = builder.Build();
 app.UseHsts();

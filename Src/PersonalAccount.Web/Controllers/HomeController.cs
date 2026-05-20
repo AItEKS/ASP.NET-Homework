@@ -18,7 +18,7 @@ public class HomeController(IBranchRepository branchRepository) : Controller
         var branches = _branchRepository.GetBranches().ToList();
         var branch = branches.First();
 
-        var viewModel = new BranchSettingsModel()
+        var viewModel = new BranchSettingsViewModel()
         {
             Branches = branches,
             BranchId = branch.Id,
@@ -61,7 +61,7 @@ public class HomeController(IBranchRepository branchRepository) : Controller
     /// </summary>
     /// <returns></returns>
     [HttpPost]
-    public IActionResult SaveSettings(BranchSettingsModel model)
+    public IActionResult SaveSettings(BranchSettingsViewModel model)
     {
         var branch = _branchRepository.GetBranch(model.BranchId);
         branch.Name = model.Name;
@@ -72,7 +72,7 @@ public class HomeController(IBranchRepository branchRepository) : Controller
 
         // Повторно перегружаю Index представление
         var branches = _branchRepository.GetBranches().ToList();
-        var viewModel = new BranchSettingsModel()
+        var viewModel = new BranchSettingsViewModel()
         {
             Branches = branches,
             BranchId = branch.Id,

@@ -6,7 +6,7 @@ namespace PersonalAccount.Web.Models;
 /// <summary>
 /// Модель данных для формы настроек.
 /// </summary>
-public class BranchSettingsModel
+public class BranchSettingsViewModel
 {
     /// <summary>
     /// Список филиалов.

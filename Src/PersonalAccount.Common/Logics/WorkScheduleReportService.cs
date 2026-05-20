@@ -1,5 +1,4 @@
 using System;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using PersonalAccount.Common.Core;
 using PersonalAccount.Domain.Models;
 using PersonalAccount.Domain.Models.Dto;

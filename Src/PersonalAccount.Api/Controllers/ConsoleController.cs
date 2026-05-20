@@ -32,6 +32,7 @@ namespace PersonalAccount.Api.Controllers
         [HttpPost("{companyId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ErrorDto))]
         public async Task<ActionResult> Push(
             [FromRoute]
             Guid companyId,
@@ -59,6 +60,7 @@ namespace PersonalAccount.Api.Controllers
         [HttpGet("{branchId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LoadingSettingsModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ErrorDto))]
         public async Task<ActionResult> GetSettings(
             [FromRoute]
             Guid branchId,

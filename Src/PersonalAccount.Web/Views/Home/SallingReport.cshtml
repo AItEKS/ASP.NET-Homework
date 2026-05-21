@@ -1,0 +1,62 @@
+@model SallingViewModel
+
+<div class="container">
+    <h2>Отчет: Продажи</h2>
+
+    <form method="post" asp-action="SallingReport">
+        <div class="row align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Филиал:</label>
+                <select class="form-select" asp-for="BranchId"
+                        asp-items="@(new SelectList(Model.Branches, "Id", "Name", Model.BranchId))">
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Начало периода:</label>
+                <input type="datetime-local" class="form-control" asp-for="Start" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Окончание периода:</label>
+                <input type="datetime-local" class="form-control" asp-for="Stop" />
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Сформировать</button>
+            </div>
+        </div>
+    </form>
+
+    <hr />
+
+    @if (Model.Rows.Any())
+    {
+        <table class="table table-striped table-sm">
+            <thead>
+                <tr>
+                    <th>Период</th>
+                    <th>Группа</th>
+                    <th>Номенклатура</th>
+                    <th class="text-end">Количество</th>
+                    <th class="text-end">Сумма</th>
+                    <th class="text-end">Скидка</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var row in Model.Rows)
+                {
+                    <tr>
+                        <td>@row.Period.ToString("yyyy-MM-dd")</td>
+                        <td>@row.CategoryName</td>
+                        <td>@row.NomenclatureName</td>
+                        <td class="text-end">@row.Quantuty</td>
+                        <td class="text-end">@row.Amount.ToString("0.00")</td>
+                        <td class="text-end">@row.DiscountAmount.ToString("0.00")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-info">Нет данных за выбранный период.</div>
+    }
+</div>

@@ -1,0 +1,56 @@
+@model WorkScheduleViewModel
+
+<div class="container">
+    <h2>Отчет: График работы</h2>
+
+    <form method="post" asp-action="WorkScheduleReport">
+        <div class="row align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Филиал:</label>
+                <select class="form-select" asp-for="BranchId"
+                        asp-items="@(new SelectList(Model.Branches, "Id", "Name", Model.BranchId))">
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Начало периода:</label>
+                <input type="datetime-local" class="form-control" asp-for="Start" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Окончание периода:</label>
+                <input type="datetime-local" class="form-control" asp-for="Stop" />
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Сформировать</button>
+            </div>
+        </div>
+    </form>
+
+    <hr />
+
+    @if (Model.Rows.Any())
+    {
+        <table class="table table-striped table-sm">
+            <thead>
+                <tr>
+                    <th>Сотрудник</th>
+                    <th>Начало смены</th>
+                    <th>Окончание смены</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var row in Model.Rows)
+                {
+                    <tr>
+                        <td>@row.EmploeeName</td>
+                        <td>@row.Start.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>@row.Stop.ToString("yyyy-MM-dd HH:mm")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-info">Нет данных за выбранный период.</div>
+    }
+</div>

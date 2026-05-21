@@ -1,18 +1,18 @@
 using Microsoft.AspNetCore.Mvc;
 using PersonalAccount.Common.Core;
+using PersonalAccount.Domain.Models.Dto;
 using PersonalAccount.Web.Models;
 
 namespace PersonalAccount.Web.Controllers;
 
-public class HomeController(IBranchRepository branchRepository) : Controller
+public class HomeController(IBranchRepository branchRepository, IReportService reportService) : Controller
 {
-    // Репозиторий для работы с филиалами
     private readonly IBranchRepository _branchRepository = branchRepository;
+    private readonly IReportService _reportService = reportService;
 
     /// <summary>
     /// Настройки
     /// </summary>
-    /// <returns></returns>
     public IActionResult Index()
     {
         var branches = _branchRepository.GetBranches().ToList();
@@ -32,34 +32,93 @@ public class HomeController(IBranchRepository branchRepository) : Controller
     /// <summary>
     /// Продажи
     /// </summary>
-    /// <returns></returns>
+    [HttpGet]
     public IActionResult SallingReport()
     {
-        return View();
+        var branches = _branchRepository.GetBranches().ToList();
+        var model = new SallingViewModel
+        {
+            Branches = branches,
+            BranchId = branches.First().Id
+        };
+        return View(model);
+    }
+
+    /// <summary>
+    /// Продажи (отчет)
+    /// </summary>
+    [HttpPost]
+    public IActionResult SallingReport(SallingViewModel model)
+    {
+        model.Branches = _branchRepository.GetBranches().ToList();
+        var transactions = _reportService.Get(model.BranchId, model.Start, model.Stop);
+        model.Rows = _reportService
+            .Create<SellingDto>(transactions, ReportTypeEnum.Salling)
+            .ToList();
+        return View(model);
     }
 
     /// <summary>
     /// Выручка
     /// </summary>
-    /// <returns></returns>
+    [HttpGet]
     public IActionResult RevenueReport()
     {
-        return View();
+        var branches = _branchRepository.GetBranches().ToList();
+        var model = new RevenueViewModel
+        {
+            Branches = branches,
+            BranchId = branches.First().Id
+        };
+        return View(model);
+    }
+
+    /// <summary>
+    /// Выручка (отчет)
+    /// </summary>
+    [HttpPost]
+    public IActionResult RevenueReport(RevenueViewModel model)
+    {
+        model.Branches = _branchRepository.GetBranches().ToList();
+        var transactions = _reportService.Get(model.BranchId, model.Start, model.Stop);
+        model.Rows = _reportService
+            .Create<RevenueDto>(transactions, ReportTypeEnum.Revenue)
+            .ToList();
+        return View(model);
     }
 
     /// <summary>
     /// График работы
     /// </summary>
-    /// <returns></returns>
+    [HttpGet]
     public IActionResult WorkScheduleReport()
     {
-        return View();
+        var branches = _branchRepository.GetBranches().ToList();
+        var model = new WorkScheduleViewModel
+        {
+            Branches = branches,
+            BranchId = branches.First().Id
+        };
+        return View(model);
+    }
+
+    /// <summary>
+    /// График работы (отчет)
+    /// </summary>
+    [HttpPost]
+    public IActionResult WorkScheduleReport(WorkScheduleViewModel model)
+    {
+        model.Branches = _branchRepository.GetBranches().ToList();
+        var transactions = _reportService.Get(model.BranchId, model.Start, model.Stop);
+        model.Rows = _reportService
+            .Create<WorkScheduleDto>(transactions, ReportTypeEnum.WorkSchedule)
+            .ToList();
+        return View(model);
     }
 
     /// <summary>
     /// Сохранить настройки
     /// </summary>
-    /// <returns></returns>
     [HttpPost]
     public IActionResult SaveSettings(BranchSettingsViewModel model)
     {
@@ -70,7 +129,6 @@ public class HomeController(IBranchRepository branchRepository) : Controller
 
         _branchRepository.Update(branch);
 
-        // Повторно перегружаю Index представление
         var branches = _branchRepository.GetBranches().ToList();
         var viewModel = new BranchSettingsViewModel()
         {
